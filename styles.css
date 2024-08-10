@@ -1,6 +1,62 @@
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    color: #383838;
+    max-width: 800px;
+    margin: 0 auto;
     padding: 20px;
+    text-align: left;
 }
+
+header {
+    margin-bottom: 50px;
+    padding-left: 20px; /* Keeps header text aligned to the left with padding */
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: 36px;
+}
+
+nav {
+    margin-top: 10px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #000;
+    margin-right: 10px;
+    font-weight: 700;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers all child elements horizontally */
+}
+
+.profile-image {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+.social-icons {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.icon {
+    font-size: 24px;
+    margin: 0 5px;
+    text-decoration: none;
+}
+
+.bio {
+    text-align: center;
+    line-height: 1.6;
+    margin: 0 auto;
+    max-width: 600px;
+}
+
