@@ -8,21 +8,20 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
+    <header id="base_header">
         <h1>Justin Meimar</h1>
         <nav>
             <a href="#">Home</a>
-            <a href="#">House</a>
-            <a href="#">Mi Casa</a>
+            <a href="/blogs">Blog</a>
         </nav>
     </header>
     <main>
+
         <img src="me.jpg" alt="Justin Meimar" class="profile-image">
         <div class="social-icons">
-            <a href="#" class="icon">📧</a>
-            <a href="#" class="icon">🐦</a>
-            <a href="#" class="icon">🏠</a>
-            <a href="#" class="icon">💼</a>
+            <a href="mailto:meimar@ualberta.ca" target="_blank">email</a>
+            <a href="https://www.linkedin.com/in/justin-meimar-dev/" target="_blank">linkedin</a>
+            <a href="https://github.com/JustinMeimar" target="_blank">github</a>
         </div>
         <p class="bio">
 	I'm a undergraduate student at the University of Alberta studying computer science.
@@ -35,7 +34,8 @@
 	At one point I had a homeserver open on 443 serving a sandboxed environment into my CLI projects.
 	While it was a fun experience, software should be simple -- right? (I also got tired of hearing the my computer fan while trying to sleep.)
 	</p>
+
     </main>
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
