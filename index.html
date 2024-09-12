@@ -7,7 +7,7 @@
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
       [x-cloak] { display: none !important; }
       .active { font-weight: bold; }
@@ -19,9 +19,9 @@
         <h1>Justin Meimar</h1>
         <nav>
           <template x-for="link in links" :key="link.url">
-            <a :href="'#' + link.url" 
-              x-text="link.text" 
-              @click="navigate(link.url)"
+            <a :href="baseUrl + '#' + link.url"
+              x-text="link.text"
+              @click.prevent="navigate(link.url)"
               :class="{ 'active': currentPath === link.url }"></a>
           </template>
         </nav>
@@ -31,7 +31,7 @@
         </hr>
         <section x-show="currentPath === '/' || currentPath === ''" x-cloak>
           <div class="profile">
-            <img src="static/me.jpg" alt="Justin Meimar" class="profile-image">
+            <img :src="baseUrl + 'static/me.jpg'" alt="Justin Meimar" class="profile-image">
             <div class="social-icons">
               <a href="mailto:meimar@ualberta.ca" target="_blank">email</a>
               <a href="https://www.linkedin.com/in/justin-meimar-dev/" target="_blank">linkedin</a>
@@ -79,21 +79,23 @@
         
         <section x-show="currentPath.startsWith('/blog/')" x-cloak>
           <template x-if="getBlogByUrl(currentPath)">
-            <div x-data="{ blogContent: '' }" 
-              x-init="renderBlog(getBlogByUrl(currentPath).path).then(
+            <div x-data="{ blogContent: '' }"
+              x-init="renderBlog(baseUrl + getBlogByUrl(currentPath).path).then(
                 result => blogContent = result.content)"
               >
               <div x-html="blogContent"></div>
-              <a href="#/blog" @click="navigate('/blog')">Back to Blog List</a>
+              <a :href="baseUrl + '#/blog'" @click.prevent="navigate('/blog')">Back to Blog List</a>
             </div>
           </template>
         </section>
-
       </main>
+
     </div>
     <footer>
       Made with <a href="https://alpinejs.dev/">Alpine JS</a>
     </footer>
-    <script src="/components.js"></script>
+    <script src="components.js"></script>
   </body>
 </html>
+
+
