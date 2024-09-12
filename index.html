@@ -1,41 +1,99 @@
 <!DOCTYPE html>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Justin Meimar</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header id="base_header">
+    <title>Justin's Site</title>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+      [x-cloak] { display: none !important; }
+      .active { font-weight: bold; }
+    </style>
+  </head>
+  <body x-data="app" x-init="init()">
+    <div id="content-wrapper">
+      <header>
         <h1>Justin Meimar</h1>
         <nav>
-            <a href="#">Home</a>
-            <a href="/blogs">Blog</a>
+          <template x-for="link in links" :key="link.url">
+            <a :href="'#' + link.url" 
+              x-text="link.text" 
+              @click="navigate(link.url)"
+              :class="{ 'active': currentPath === link.url }"></a>
+          </template>
         </nav>
-    </header>
-    <main>
+      </header>
+      <main>
+        <hr>
+        </hr>
+        <section x-show="currentPath === '/' || currentPath === ''" x-cloak>
+          <div class="profile">
+            <img src="static/me.jpg" alt="Justin Meimar" class="profile-image">
+            <div class="social-icons">
+              <a href="mailto:meimar@ualberta.ca" target="_blank">email</a>
+              <a href="https://www.linkedin.com/in/justin-meimar-dev/" target="_blank">linkedin</a>
+              <a href="https://github.com/JustinMeimar" target="_blank">github</a>
+            </div>
+          </div>
+          <p class="bio">
+            I'm an undergraduate student at the University of Alberta studying computer science.
+            My interests are in systems (Compilers, OS, networking etc) I enjoy snooping around
+            the hardware software boundary, making bash scripts, as well
+            as trees, both real and upside down ones.
+          </p>
+          <p class="bio">
+            This site is a major simplification over its predecessor. 
+            Previously I had a homeserver open on 443 serving a sandboxed environment into
+            my CLI projects. While it was a fun, I eventually got tired of hearing my computer
+            fan while trying to sleep. 
+          </p>
+        </section>
 
-        <img src="me.jpg" alt="Justin Meimar" class="profile-image">
-        <div class="social-icons">
-            <a href="mailto:meimar@ualberta.ca" target="_blank">email</a>
-            <a href="https://www.linkedin.com/in/justin-meimar-dev/" target="_blank">linkedin</a>
-            <a href="https://github.com/JustinMeimar" target="_blank">github</a>
-        </div>
-        <p class="bio">
-	I'm a undergraduate student at the University of Alberta studying computer science.
-	My primary focus involves systems (Compilers, OS, networking etc).
+        <section x-show="currentPath === '/blog'" x-cloak>
+          <p>To help me postpone LLM dependence...</p> 
+          <div class="item-list">
+            <template x-for="blog in blogs" :key="blog.url">
+              <div class="item-entry" @click="navigate(blog.url)">
+                <h3 x-text="blog.title"></h3>
+                <p x-text="blog.date"></p>
+              </div>
+            </template>
+          </div>
+        </section> 
+        
+        <section x-show="currentPath === '/projects'" x-cloak>
+          <p>Some projects of mine</p> 
+          <div class="item-list">
+            <template x-for="proj in projects" :key="proj.link">
+              <div class="item-entry">
+                <h3 x-text="proj.title"></h3>
+                <p x-text="proj.date"></p>
+                <p x-text="proj.desc"></p>
+              </div>
+            </template>
+          </div>
+        </section> 
+        
+        <section x-show="currentPath.startsWith('/blog/')" x-cloak>
+          <template x-if="getBlogByUrl(currentPath)">
+            <div x-data="{ blogContent: '' }" 
+              x-init="renderBlog(getBlogByUrl(currentPath).path).then(
+                result => blogContent = result.content)"
+              >
+              <div x-html="blogContent"></div>
+              <a href="#/blog" @click="navigate('/blog')">Back to Blog List</a>
+            </div>
+          </template>
+        </section>
 
-	I enjoy snooping around the hardware software boundary, making bash scripts, as well as trees -- both real and upside down ones.
-	<br></br>
-	<p class="bio">
-	Afer several complex portfolio sites, I've finally decide to drop it all in favour of a single html and css file each.
-	At one point I had a homeserver open on 443 serving a sandboxed environment into my CLI projects.
-	While it was a fun experience, software should be simple -- right? (I also got tired of hearing the my computer fan while trying to sleep.)
-	</p>
-
-    </main>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-</body>
+      </main>
+    </div>
+    <footer>
+      Made with <a href="https://alpinejs.dev/">Alpine JS</a>
+    </footer>
+    <script src="/components.js"></script>
+  </body>
 </html>
