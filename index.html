@@ -58,25 +58,30 @@
           <div class="item-list">
             <template x-for="blog in blogs" :key="blog.url">
               <div class="item-entry" @click="navigate(blog.url)">
-                <h3 x-text="blog.title"></h3>
-                <p x-text="blog.date"></p>
+                <div class="item-content">
+                  <h3 x-text="blog.title"></h3>
+                  <p x-text="blog.date"></p>
+                </div>
               </div>
             </template>
           </div>
         </section> 
         
         <section x-show="currentPath === '/projects'" x-cloak>
-          <p>Some projects of mine</p> 
+          <p>Some random things I have made</p> 
           <div class="item-list">
             <template x-for="proj in projects" :key="proj.link">
-              <div class="item-entry">
-                <h3 x-text="proj.title"></h3>
-                <p x-text="proj.date"></p>
-                <p x-text="proj.desc"></p>
+              <div class="item-entry" @click="window.open(proj.link, '_blank')">
+                <div class="item-content">
+                  <h3 x-text="proj.title"></h3>
+                  <p x-text="proj.date"></p>
+                  <p x-text="proj.desc"></p>
+                </div>
+                <img :src="proj.photo" :alt="proj.title" class="item-photo">
               </div>
             </template>
           </div>
-        </section> 
+        </section>
         
         <section x-show="currentPath.startsWith('/blog/')" x-cloak>
           <template x-if="getBlogByUrl(currentPath)">
@@ -95,7 +100,7 @@
     <footer>
       Made with <a href="https://alpinejs.dev/">Alpine JS</a>
     </footer>
-    <script src="components.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>
 
