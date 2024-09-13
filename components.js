@@ -19,10 +19,22 @@ function app() {
                 date: '2024-09-11',
                 url: '/blog/nginx',
                 path: 'blogs/nginx.md'
+            },
+            {
+                title: 'A Copy of a Copy of a Copy',
+                date: '2024-09-11',
+                url: '/blog/copy-of-a-copy',
+                path: 'blogs/copy-of-a-copy.md'
+            },
+            {
+                title: 'How I host a fork of Compiler Explorer',
+                date: '2024-09-11',
+                url: '/blog/nginx-compiler-explorer',
+                path: 'blogs/nginx.md'
             }
         ],
         projects: [
-            // Project data remains the same
+        
         ],
         navigate(path) {
             window.location.hash = path;
@@ -34,8 +46,6 @@ function app() {
             };
             window.addEventListener('hashchange', updatePath);
             updatePath();
-
-            // Check if we're on GitHub Pages
             if (window.location.hostname === 'justinmeimar.github.io') {
                 this.baseUrl = '/minima/';
             } else {
