@@ -1,12 +1,9 @@
 ## Copy of a Copy of a Copy...
-The C++ STL can hide some pretty large complexity under its hood.
-My favourite example is the copy of a copy of a copy. It is a great
-illustration of how compilers work.
+The C++ STL can hide some pretty large complexity under its hood. My favourite example is the copy of a copy of a copy. It is a great illustration of how compilers work.
 <hr>
 
 ### Bring in the Widget
-Say we have a simple `Widget` class. We create a `std::vector` and
-push two Widgets in by value.
+Say we have a simple `Widget` class. We create a `std::vector` and push two Widgets in by value.
 
 ```c++
 std::vector<Widget> widgets;
@@ -15,15 +12,7 @@ widgets.push_back(Widget(1));
 widgets.push_back(Widget(2));
 ```
 
-A question: How many calls to `Widget`s constructor, destructor and
-copy constructor are made in this snippet?
-
-Well first, the temporary `Widget(1)` is created. Since it is a `rvalue`,
-it is ephemeral. And since our does not implement a move constructor, the
-value must be copied into the parameter for `push_back`, from which it is
-placed in the vector. Afterwords, the temporary `Widget(1)` is immediately
-destoryed. Great, now statement one is complete. One constructor is called,
-one copy, one destructor. Lets move on to statement two.
+A question: How many calls to `Widget`s constructor, destructor and copy constructor are made in this snippet? Well first, the temporary `Widget(1)` is created. Since it is a `rvalue`, it is ephemeral. And since our does not implement a move constructor, the value must be copied into the parameter for `push_back`, from which it is placed in the vector. Afterwords, the temporary `Widget(1)` is immediately destoryed. Great, now statement one is complete. One constructor is called, one copy, one destructor. Lets move on to statement two.
 
 ```c++
 widgets.push_back(Widget(2));

@@ -8,6 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/links.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+
     <style>
       [x-cloak] { display: none !important; }
       .active { font-weight: bold; }
@@ -33,11 +37,11 @@
           <div class="profile">
             <img :src="baseUrl + 'static/me.jpg'" alt="Justin Meimar" class="profile-image">
             <div class="social-icons">
-              <a href="mailto:meimar@ualberta.ca" target="_blank">email</a>
+              <a class="link" href="https://github.com/JustinMeimar" target="_blank">github</a>
+              <a>meimar@ualberta.ca</a>
               <a href="https://www.linkedin.com/in/justin-meimar-dev/" target="_blank">linkedin</a>
-              <a href="https://github.com/JustinMeimar" target="_blank">github</a>
             </div>
-          </div>
+          </div> 
           <p class="bio">
             I'm an undergraduate student at the University of Alberta studying computer science.
             My interests are in systems (Compilers, OS, networking etc) I enjoy snooping around
@@ -45,16 +49,17 @@
             as trees, both real and upside down ones.
           </p>
           <p class="bio">
-            This site is a major simplification over its predecessor. 
-            Previously I had a homeserver open on 443 serving a sandboxed environment into
-            my CLI projects. While it was a fun, I eventually got tired of hearing my computer
-            fan while trying to sleep. 
+            This site is a major simplification over its predecessor. It has a few
+            single file JS dependencies and a single html and css file.
+             
+            Previously I had a homeserver running a sandboxed environment into
+            my CLI projects. I eventually got tired of hearing my computer
+            fan while trying to sleep ~:) 
           </p>
-          <p>*Note* this page is currently under construction...</p>
         </section>
 
         <section x-show="currentPath === '/blog'" x-cloak>
-          <p>To help me postpone LLM dependence...</p> 
+          <p class="sub-title">To help me postpone LLM dependence...</p> 
           <div class="item-list">
             <template x-for="blog in blogs" :key="blog.url">
               <div class="item-entry" @click="navigate(blog.url)">
@@ -68,7 +73,7 @@
         </section> 
         
         <section x-show="currentPath === '/projects'" x-cloak>
-          <p>Some random things I have made</p> 
+          <p class="sub-title">Some random things I have made</p> 
           <div class="item-list">
             <template x-for="proj in projects" :key="proj.link">
               <div class="item-entry" @click="window.open(proj.link, '_blank')">
@@ -90,17 +95,22 @@
                 result => blogContent = result.content)"
               >
               <div x-html="blogContent"></div>
-              <a :href="baseUrl + '#/blog'" @click.prevent="navigate('/blog')">Back to Blog List</a>
             </div>
           </template>
         </section>
       </main>
-
     </div>
     <footer>
       Made with <a href="https://alpinejs.dev/">Alpine JS</a>
     </footer>
     <script src="app.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+        document.querySelectorAll('pre code').forEach((el) => {
+          hljs.highlightElement(el);
+        });
+      });
+    </script>
   </body>
 </html>
 

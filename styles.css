@@ -7,7 +7,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-family: system-ui;
     font-size: 18px;
     line-height: 1.6;
     color: #333;
@@ -91,7 +91,7 @@ nav a.active::after {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 20px;
-    margin-top: 20px;
+    margin-top: 50px;
 }
 
 .social-icons {
@@ -105,10 +105,13 @@ nav a.active::after {
 }
 
 .bio {
+    max-width: 600px; /* Adjust this value as needed */
+    margin: 0 auto 20px auto;
+    padding: 0 20px;
+    line-height: 1.6;
     text-align: justify;
-    margin-bottom: 20px;
-    padding-left: 40px;
-    padding-right: 40px;
+    text-justify: inter-word;
+    hyphens: auto;
 }
 
 .blog-list {
@@ -182,19 +185,24 @@ code {
 .item-entry:hover::after {
     transform: scaleX(1);
 }
+
 .item-entry:hover {
     background-color: #f5f5f5;
 }
+
 .item-entry h3 {
     margin: 0 0 5px 0;
 }
+
 .item-entry p {
     margin: 0;
     color: #666;
 }
+
 .item-content {
     flex: 1;
 }
+
 .item-photo {
     width: 120px;
     height: 120px;
@@ -202,4 +210,160 @@ code {
     margin-left: 20px;
 }
 
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 15px; 
+}
 
+.social-icons a {
+    color: #333; 
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 5px;
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+.social-icons a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #4CAF50;
+    transform: scaleX(0);
+    transition: transform 0.3s ease-in-out;
+}
+
+.social-icons a:hover::after {
+    transform: scaleX(1);
+}
+
+pre {
+    border: 1px solid #e1e4e8;
+    border-radius:10px;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+code {
+    font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    padding: 0.2em 0.4em;
+    margin: 0;
+    border-radius: 3px;
+}
+
+pre code {
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: 0;
+}
+
+.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 0.5em;
+    color: #24292e;
+    background: #f6f8fa;
+}
+
+.hljs-comment,
+.hljs-quote {
+    color: #6a737d;
+    font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+    color: #d73a49;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+    color: #005cc5;
+}
+
+.hljs-string,
+.hljs-doctag {
+    color: #032f62;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+    color: #6f42c1;
+    font-weight: bold;
+}
+
+.hljs-subst {
+    font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+    color: #458;
+    font-weight: bold;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+    color: #000080;
+    font-weight: normal;
+}
+
+.hljs-regexp,
+.hljs-link {
+    color: #009926;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+    color: #990073;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+    color: #0086b3;
+}
+
+.hljs-meta {
+    color: #999;
+    font-weight: bold;
+}
+
+.hljs-deletion {
+    background: #fdd;
+}
+
+.hljs-addition {
+    background: #dfd;
+}
+
+.hljs-emphasis {
+    font-style: italic;
+}
+
+.hljs-strong {
+    font-weight: bold;
+}
+
+.sub-title {
+  margin-top: 30px;
+  padding: 10px;
+}

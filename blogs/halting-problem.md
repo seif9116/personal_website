@@ -1,12 +1,10 @@
 ## The Halting Problem...
 
-Test blog...
-
 Just kidding, I can not solve the halting problem.
 
 In fact, my career is baking on it.
 
-
+This is a Test blog...
 
 ```c++
 class A {
@@ -25,3 +23,14 @@ private:
 
 ```
 
+Syntax highlighting???
+
+```html
+<div>
+    <tr>
+        <td> </td>
+        <a href="test.com">Link</a>
+    <tr>
+</div>
+
+```
