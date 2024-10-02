@@ -37,24 +37,21 @@
           <div class="profile">
             <img :src="baseUrl + 'static/me.jpg'" alt="Justin Meimar" class="profile-image">
             <div class="social-icons">
-              <a class="link" href="https://github.com/JustinMeimar" target="_blank">github</a>
-              <a>meimar@ualberta.ca</a>
+              <a href="https://github.com/JustinMeimar" target="_blank">github</a>
               <a href="https://www.linkedin.com/in/justin-meimar-dev/" target="_blank">linkedin</a>
+              <a :href="baseUrl + 'static/resume.pdf'" target="_blank">resume</a>
+              <a href="mailto:meimar@ualberta.ca" title="meimar@ualberta.ca">email</a>
             </div>
           </div> 
           <p class="bio">
             I'm an undergraduate student at the University of Alberta studying computer science.
-            My interests are in systems (Compilers, OS, networking etc) I enjoy snooping around
-            the hardware software boundary, making bash scripts, as well
-            as trees, both real and upside down ones.
+            Welcome to my super minimal static site!
           </p>
           <p class="bio">
-            This site is a major simplification over its predecessor. It has a few
-            single file JS dependencies and a single html and css file.
-             
-            Previously I had a homeserver running a sandboxed environment into
-            my CLI projects. I eventually got tired of hearing my computer
-            fan while trying to sleep ~:) 
+            I'm a systems programmer focused on compilers, build systems, and learning new programming languages.
+            My natural habitat is the terminal where I can survive ideneifinitely off my various dotfile 
+            configurations. Outside of programming, I like to clear my mind by play hockey and soccer. I also
+            enjoy hiking
           </p>
         </section>
 

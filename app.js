@@ -16,17 +16,18 @@ const blogs = [
   /**
   ,
   {
+    title: 'A Copy of a Copy of a Copy',
+    date: '2024-09-11',
+    url: '/blog/copy-of-a-copy',
+    path: 'blogs/copy-of-a-copy.md'
+  }
+  {
     title: 'This blog doesn\'t texist',
     date: '2024-09-11',
     url: '/',
     path: 'blogs/nginx.md'
   },
-  {
-    title: 'A Copy of a Copy of a Copy',
-    date: '2024-09-11',
-    url: '/blog/copy-of-a-copy',
-    path: 'blogs/copy-of-a-copy.md'
-  },
+  ,
   {
     title: 'How I host a fork of Compiler Explorer',
     date: '2024-09-11',
@@ -36,7 +37,40 @@ const blogs = [
   */
 ]; 
 
+const personalLinks = [
+  {
+    name: 'github',
+    link: 'https://github.com/JustinMeimar',
+  },
+  {
+    name: 'email',
+    link: 'meimar@ualberta.ca',
+  },
+  {
+    name: 'linkedin',
+    link: 'https://www.linkedin.com/in/justin-meimar-dev/',
+  },
+  {
+    name: 'resume',
+    link: getBaseUrl() + 'static/resume.pdf',
+  }
+];
+
 const projects = [
+  {
+    title: 'Dragon-Runner',
+    date: '2024-09-20',
+    desc: 'V2 of a custom toolchain and test runner for my universitys compiler class',
+    link: 'https://github.com/JustinMeimar/Dragon-Runner',
+    photo: getBaseUrl() + 'static/projects/dragon.png'
+  },
+  {
+    title: '415 Compiler-Explorer',
+    date: '2024-08-01',
+    desc: 'A fork of compiler-explorer for 415 assignments',
+    link: 'https://www.cmput415compilerexplorer.com/',
+    photo: getBaseUrl() + 'static/projects/ce.png'
+  },
   {
     title: 'Algo Trees',
     date: '2024-01-05',
@@ -64,6 +98,7 @@ function app() {
             { url: '/blog', text: 'Blog' },
             { url: '/projects', text: 'Projects' }
         ],
+        personalLinks: personalLinks,
         blogs: blogs, 
         projects: projects, 
         navigate(path) {
