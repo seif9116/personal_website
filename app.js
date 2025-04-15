@@ -9,6 +9,12 @@ const getBaseUrl = () => {
 const blogs = [
   
   {
+    title: 'Simple KV Store within LLM Custom Instructions',
+    date: '2025-04-15',
+    url: '/blog/llm-instrs',
+    path: 'blogs/llm-instrs.md'
+  }, 
+  {
     title: 'An Internet for AIs',
     date: '2025-04-15',
     url: '/blog/an-internet-for-ais',
