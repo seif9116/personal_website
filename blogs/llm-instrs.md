@@ -90,7 +90,7 @@ Remember: execution speed matters more than perfect planning.
 ```
 
 
-2. Shakespear seems to work, at least enough to fool a fool like me.
+2. Shakespear seems to work, at least well enough to fool a fool like me.
 
 ```
 me: SK What is the difference bteween a CPU and a GPU?
@@ -108,7 +108,7 @@ each in turn.
 3. Prevent me from using Sketchy Design Patterns?
 
 ```
-me: DA I want to design an AST for my compiler. I have a Node type and do
+me: AD I want to design an AST for my compiler. I have a Node type and do
 dependency injection with an enum for every type. I'm using a strongly
 typed language. Help me design the frontend for my language. 
 
