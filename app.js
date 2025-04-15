@@ -7,34 +7,19 @@ const getBaseUrl = () => {
 };
 
 const blogs = [
+  
+  {
+    title: 'An Internet for AIs',
+    date: '2025-04-15',
+    url: '/blog/an-internet-for-ais',
+    path: 'blogs/an-internet-for-ais.md'
+  }, 
   {
     title: 'Solving the Halting Problem',
     date: '2024-09-11',
     url: '/blog/halting-problem',
     path: 'blogs/halting-problem.md'
-  }
-  /**
-  ,
-  {
-    title: 'A Copy of a Copy of a Copy',
-    date: '2024-09-11',
-    url: '/blog/copy-of-a-copy',
-    path: 'blogs/copy-of-a-copy.md'
-  }
-  {
-    title: 'This blog doesn\'t texist',
-    date: '2024-09-11',
-    url: '/',
-    path: 'blogs/nginx.md'
   },
-  ,
-  {
-    title: 'How I host a fork of Compiler Explorer',
-    date: '2024-09-11',
-    url: '/blog/nginx-compiler-explorer',
-    path: 'blogs/nginx.md'
-  }
-  */
 ]; 
 
 const personalLinks = [

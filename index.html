@@ -44,19 +44,23 @@
             </div>
           </div> 
           <p class="bio">
-            I'm an undergraduate student at the University of Alberta studying computer science.
-            Welcome to my super minimal static site!
+            I'm a Masters student at the University of Alberta studying Compilers and Systems.
+            Welcome to my minimal static site!
           </p>
-          <p class="bio">
-            I'm a systems programmer focused on compilers, build systems, and learning new programming languages.
-            My natural habitat is the terminal where I can survive ideneifinitely off my various dotfile 
-            configurations. Outside of programming, I like to clear my mind by play hockey and soccer. I also
-            enjoy hiking
+          <p class="bio"
+            
+            <!-- I enjoy solving difficult software design problems. My natural environment is the terminal, where I can work indefinitely using my dotfiles. I'm continually starting mini-projects in tangential areas. -->
+            I enjoy solving difficult software design problems.
+            My natural environment is the terminal, where I can work indefinitely using my dotfiles. I'm continually starting mini-projects in tangential areas.
+            From productivity tools,
+            to elaborate LLM experiemnts,
+            I'm broadly interested in improving my relationship with technology. 
+            Outside of programming altogether, I clear my mind by playing hockey and soccer and by hiking.
           </p>
         </section>
 
         <section x-show="currentPath === '/blog'" x-cloak>
-          <p class="sub-title">To help me postpone LLM dependence...</p> 
+          <p class="sub-title">Real writing, to help me postpone LLM dependence...</p> 
           <div class="item-list">
             <template x-for="blog in blogs" :key="blog.url">
               <div class="item-entry" @click="navigate(blog.url)">
