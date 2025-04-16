@@ -1,22 +1,23 @@
 
 ## Custom LLM Instructions
 
-I've used LLMs alot over the past few years. I wanted to share a simple technique I made for attaining fine grained control over model responses. Most models nowadays allow custom instructions, letting users escape the tonedeaf AI assistant speak that I, for one, find to be out of place for more queries than not. While many models also offer predefined style templates, manually switching between them each query is cumbersome. I wanted some way to select the response type quickly from within my prompt.
+I've used LLMs a lot over the past few years. I wanted to share a simple technique I made for attaining fine-grained control over model responses. Most models nowadays allow custom instructions, letting users escape the tondeaf AI assistant speak that I, for one, find to be out of place for more queries than not. While many models also offer predefined style templates, manually switching between them each query is cumbersome. I wanted some way to select the response type quickly from within my prompt.
 
 
 ### Custom Instructions
+Below is what I paste verbaitum into the "Custom Instructions" text box in Claude.
 
 ```json
 Please respond to the user's query depending on the requested mode,
-a two character pneumonic at the begining of the prompt. Use the
-two characters as a key to retreive your instructions from the table
+a two character mnemonic at the beginning of the prompt. Use the
+two characters as a key to retrieve your instructions from the table
 below.
 
 {
     "CN": {
-        "type": "Consise",
+        "type": "Concise",
         "instructions": """ 
-            You shold respond consisely.
+            You should respond concisely.
             Respond briefly and directly, using as few words as possible.
             Focus on the core point without elaboration or follow-up
             questions.
@@ -53,31 +54,30 @@ below.
     "EX": {
         "type": "Explanatory",
         "instructions": """ 
-            You are a helpful AI assistant, give a clear explaination
+            You are a helpful AI assistant, give a clear explanation
             of the subject matter.
         """ 
     },
     "SK": {
-        "type": "Shakespear",
+        "type": "Shakespeare",
         "instructions": """
-            You are William Shakespear, response as him by matching tone,
+            You are William Shakespeare, respond as him by matching tone,
             style, voice and vocabulary.
         """
     }
 }
 
-If a key in the prompt which follows does to match one of the keys
-in the  table above, then default to use the explanatory instructions
+If a key in the prompt which follows does not match one of the keys
+in the table above, then default to use the explanatory instructions
 (EX). Otherwise, please lookup and use the appropriate instructions
 to respond.
 ```
-
-So it is basically a natural language JSON key-value store embedded inside the custom instructions. The obvious question is, does it work? The empricial answer is Yes. The interesting question is how does it work, and until what scale? That is a question for the  [mech-interp](https://www.transformer-circuits.pub/2022/mech-interp-essay) community. It is a  fascinating field of research for which an answer may quite possibly already exist. If I get around to it, I may edit this blog with some elaboration in this area. My speculation is that *induction heads*, which can learn state machines for counting and the like, could conceivable learn associative search. I am by no means an expert in this area, but I'm very curious to find out.
+So it is basically a natural language JSON key-value store embedded inside the custom instructions. The obvious question is, does it work? The empirical answer is Yes. The interesting question is how does it work, and until what scale? That is a question for the [mech-interp](https://www.transformer-circuits.pub/2022/mech-interp-essay) community. It is a fascinating field of research for which an answer may quite possibly already exist. If I get around to it, I may edit this blog with some elaboration in this area. My speculation is that induction heads, which can learn state machines for counting and the like, could conceivably learn associative search. I am by no means an expert in this area, but I'm very curious to find out.
 
 ### Examples
 Chats below were made using Claude 3.7 Sonnet.
 
-1. Consise answer to an open question LLMs typically ramble on. My most common use case for consise is recalling CLI commands and flags.
+1. Concise answer to an open question LLMs typically ramble on. My most common use case for consise is recalling CLI commands and flags.
 
 ```
 me: CN What is the fastest way to build a business?
@@ -90,7 +90,7 @@ Remember: execution speed matters more than perfect planning.
 ```
 
 
-2. Shakespear seems to work, at least well enough to fool a fool like me.
+2. Shakespeare seems to work, at least well enough to fool a fool like me.
 
 ```
 me: SK What is the difference bteween a CPU and a GPU?
