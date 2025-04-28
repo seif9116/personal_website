@@ -7,46 +7,33 @@ const getBaseUrl = () => {
 };
 
 const blogs = [
-  
   {
-    title: 'Simple KV Store within LLM Custom Instructions',
-    date: '2025-04-15',
-    url: '/blog/llm-instrs',
-    path: 'blogs/llm-instrs.md'
-  }, 
-  {
-    title: 'An Internet for AIs',
-    date: '2025-04-15',
-    url: '/blog/an-internet-for-ais',
-    path: 'blogs/an-internet-for-ais.md'
-  }, 
-  {
-    title: 'Solving the Halting Problem',
-    date: '2024-09-11',
-    url: '/blog/halting-problem',
-    path: 'blogs/halting-problem.md'
+    title: 'Training Models That Affect Their Data',
+    date: '2025-04-24',
+    url: '/blog/training-ml',
+    path: 'blogs/training-ml.md'
   },
 ]; 
 
 const personalLinks = [
   {
     name: 'github',
-    link: 'https://github.com/JustinMeimar',
+    link: 'https://github.com/seif9116',
   },
   {
     name: 'email',
-    link: 'meimar@ualberta.ca',
+    link: 'smetwall@ualberta.ca',
   },
   {
     name: 'linkedin',
-    link: 'https://www.linkedin.com/in/justin-meimar-dev/',
+    link: 'https://www.linkedin.com/in/seif-metwally/',
   },
   {
     name: 'resume',
-    link: getBaseUrl() + 'static/resume.pdf',
+    link: getBaseUrl() + 'static/cv.pdf',
   }
 ];
-
+/*
 const projects = [
   {
     title: 'Dragon-Runner',
@@ -77,21 +64,21 @@ const projects = [
     photo: getBaseUrl() + 'static/projects/nfa.png'
   }
 ];
-
+*/
 
 function app() {
   
   return {
         currentPath: '/',
-        baseUrl: '/minima/',
+        baseUrl: getBaseUrl(),
         links: [
             { url: '/', text: 'Home' },
             { url: '/blog', text: 'Blog' },
-            { url: '/projects', text: 'Projects' }
+           // { url: '/projects', text: 'Projects' }
         ],
         personalLinks: personalLinks,
-        blogs: blogs, 
-        projects: projects, 
+        blogs: blogs,
+        //projects: projects, 
         navigate(path) {
             window.location.hash = path;
             this.currentPath = path;
@@ -102,7 +89,7 @@ function app() {
             };
             window.addEventListener('hashchange', updatePath);
             updatePath();
-            this.baseUrl = getBaseUrl();
+            //this.baseUrl = getBaseUrl();
         },
         getBlogByUrl(url) {
             return this.blogs.find(blog => blog.url === url);

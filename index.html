@@ -1,114 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Justin's Site</title>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="styles/links.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
 
-    <style>
-      [x-cloak] { display: none !important; }
-      .active { font-weight: bold; }
-    </style>
-  </head>
-  <body x-data="app" x-init="init()">
-    <div id="content-wrapper">
-      <header>
-        <h1>Justin Meimar</h1>
-        <nav>
-          <template x-for="link in links" :key="link.url">
-            <a :href="baseUrl + '#' + link.url"
-              x-text="link.text"
-              @click.prevent="navigate(link.url)"
-              :class="{ 'active': currentPath === link.url }"></a>
-          </template>
-        </nav>
-      </header>
-      <main>
-        <hr>
-        </hr>
-        <section x-show="currentPath === '/' || currentPath === ''" x-cloak>
-          <div class="profile">
-            <img :src="baseUrl + 'static/me.jpg'" alt="Justin Meimar" class="profile-image">
-            <div class="social-icons">
-              <a href="https://github.com/JustinMeimar" target="_blank">github</a>
-              <a href="https://www.linkedin.com/in/justin-meimar-dev/" target="_blank">linkedin</a>
-              <a :href="baseUrl + 'static/resume.pdf'" target="_blank">resume</a>
-              <a href="mailto:meimar@ualberta.ca" title="meimar@ualberta.ca">email</a>
-            </div>
-          </div> 
-          <p class="bio">
-            I'm a Masters student at the University of Alberta studying Compilers and Systems.
-            Welcome to my minimal static site!
-          </p>
-          <p class="bio"
-            <!--  -->
-            My prospective research involves finding compiler techniques which efficiently map computations from software onto hardware. The end of Moore's law necessitates that hardware and software architects alike begin to explore new ways for expressing computation. Typically these needs occur in the form of ASICs, the programming models for which are novel and contain fertile ground for optimization.
-            I'm particularly interested in revisiting classical compiler techniques, such as VLIW and dataflow oriented paradigms, as modern workloads shift from inherently serial to parallel with the advent of deep learning.
-            Outside of computers, I like to clear my mind by reading science fiction, playing hockey, soccer and hiking.
-          </p>
-        </section>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seif's Site</title>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles/links.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
 
-        <section x-show="currentPath === '/blog'" x-cloak>
-          <p class="sub-title">Real writing, to help me postpone LLM dependence...</p> 
-          <div class="item-list">
-            <template x-for="blog in blogs" :key="blog.url">
-              <div class="item-entry" @click="navigate(blog.url)">
-                <div class="item-content">
-                  <h3 x-text="blog.title"></h3>
-                  <p x-text="blog.date"></p>
-                </div>
-              </div>
-            </template>
+  <style>
+    [x-cloak] {
+      display: none !important;
+    }
+
+    .active {
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body x-data="app" x-init="init()">
+  <div id="content-wrapper">
+    <header>
+      <h1>Seif Eldin Metwally</h1>
+      <nav>
+        <template x-for="link in links" :key="link.url">
+          <a :href="baseUrl + '#' + link.url" x-text="link.text" @click.prevent="navigate(link.url)"
+            :class="{ 'active': currentPath === link.url }"></a>
+        </template>
+      </nav>
+    </header>
+    <main>
+      <hr>
+      </hr>
+      <section x-show="currentPath === '/' || currentPath === ''" x-cloak>
+        <div class="profile">
+          <img :src="baseUrl + 'static/me.jpeg'" alt="Seif Metwally" class="profile-image">
+          <div class="social-icons">
+            <a href="https://github.com/seif9116" target="_blank">github</a>
+            <a href="https://www.linkedin.com/in/seif-metwally/" target="_blank">linkedin</a>
+            <a :href="baseUrl + 'static/cv.pdf'" target="_blank">resume</a>
+            <a href="mailto:smetwall@ualberta.ca" title="smetwall@ualberta.ca">email</a>
           </div>
-        </section> 
-        
-        <section x-show="currentPath === '/projects'" x-cloak>
-          <p class="sub-title">Some random things I have made</p> 
-          <div class="item-list">
-            <template x-for="proj in projects" :key="proj.link">
-              <div class="item-entry" @click="window.open(proj.link, '_blank')">
-                <div class="item-content">
-                  <h3 x-text="proj.title"></h3>
-                  <p x-text="proj.date"></p>
-                  <p x-text="proj.desc"></p>
-                </div>
-                <img :src="proj.photo" :alt="proj.title" class="item-photo">
+        </div>
+        <p class="bio">
+          Hey, my name is Seif. I'm an incoming Masters student at the University of Alberta studying Statistical Machine Learning.
+        </p>
+        <p class="bio">
+          I'm a nerd for all things Mathematics. The less applications and the higher likelihood of being
+          homeless, the better. Unfortunately, its come to my recent attention that I need to eat. Luckily,
+          I have found a passion in the development of robust machine learning algorithms for real world applications.
+          With the barage of LLMs, and AI algorithms in almost all aspects of our lives, developing fair and robust
+          algorithms is more important than ever. Currently my work involves applying <a href="">Distributionally Robust Optimization</a>
+          to <a href="">Performative Prediction</a> settings. 
+        </p>
+        <p class="bio">
+          When I'm not pulling my hair out struggling to prove theorems, I love to study my religion, Islam.
+          Whether its reading the Quran, learning Arabic, or memorizing poetry, ...
+
+        </p>
+      </section>
+
+      <section x-show="currentPath === '/blog'" x-cloak>
+        <p class="sub-title">Real writing, to help me postpone LLM dependence...</p>
+        <div class="item-list">
+          <template x-for="blog in blogs" :key="blog.url">
+            <div class="item-entry" @click="navigate(blog.url)">
+              <div class="item-content">
+                <h3 x-text="blog.title"></h3>
+                <p x-text="blog.date"></p>
               </div>
-            </template>
-          </div>
-        </section>
-        
-        <section x-show="currentPath.startsWith('/blog/')" x-cloak>
-          <template x-if="getBlogByUrl(currentPath)">
-            <div x-data="{ blogContent: '' }"
-              x-init="renderBlog(baseUrl + getBlogByUrl(currentPath).path).then(
-                result => blogContent = result.content)"
-              >
-              <div x-html="blogContent"></div>
             </div>
           </template>
-        </section>
-      </main>
-    </div>
-    <footer>
-      Made with <a href="https://alpinejs.dev/">Alpine JS</a>
-    </footer>
-    <script src="app.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', (event) => {
-        document.querySelectorAll('pre code').forEach((el) => {
-          hljs.highlightElement(el);
-        });
+        </div>
+      </section>
+
+      <!--
+      <section x-show="currentPath === '/projects'" x-cloak>
+        <p class="sub-title">Some random things I have made</p>
+        <div class="item-list">
+          <template x-for="proj in projects" :key="proj.link">
+            <div class="item-entry" @click="window.open(proj.link, '_blank')">
+              <div class="item-content">
+                <h3 x-text="proj.title"></h3>
+                <p x-text="proj.date"></p>
+                <p x-text="proj.desc"></p>
+              </div>
+              <img :src="proj.photo" :alt="proj.title" class="item-photo">
+            </div>
+          </template>
+        </div>
+      </section>
+      -->
+      <section x-show="currentPath.startsWith('/blog/')" x-cloak>
+        <template x-if="getBlogByUrl(currentPath)">
+          <div x-data="{ blogContent: '' }" x-init="renderBlog(baseUrl + getBlogByUrl(currentPath).path).then(
+                result => blogContent = result.content)">
+            <div x-html="blogContent"></div>
+          </div>
+        </template>
+      </section>
+    </main>
+  </div>
+  <footer>
+    This site is fork from my good friend <a href="">Justin Meimar's Website</a>
+  </footer>
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      document.querySelectorAll('pre code').forEach((el) => {
+        hljs.highlightElement(el);
       });
-    </script>
-  </body>
+    });
+  </script>
+</body>
+
 </html>
-
-
