@@ -10,15 +10,24 @@ from scipy.optimize import minimize # For finding optimal theta
 # Global parameters
 theta = np.pi/4  # 45 degrees as default
 initial_guess = np.pi/16  # Initial guess at pi/16 radians
+# Save the current line of best fit value for reference
+BEST_FIT_THETA = 0.7955  # 45.6 degrees (0.7955 rad)
+ORIGINAL_LOSS = 0.3611  # Original loss value for reference
 DIFFERENTIATE_GROUPS = False  # Set to True to differentiate between groups
 SHOW_GROUP_A = True  # Set to True to show Group A
 SHOW_GROUP_B = True  # Set to True to show Group B
+SHOW_SHIFTED_GROUP_B = False  # Set to True to show the shifted Group B
 SHOW_LABEL_0 = True  # Set to True to show blue circles (Label 0)
 SHOW_LABEL_1 = True  # Set to True to show red circles (Label 1)
-SHOW_INITIAL_GUESS = True  # Set to True to show initial guess line at pi/16
+SHOW_INITIAL_GUESS = False  # Set to True to show initial guess line at pi/16
 SHOW_LOSS = True  # Set to True to display loss value on plot
-SHOW_PERTURBATIONS = True  # Set to True to show perturbations of the initial guess
-SHOW_BEST_GUESS = False  # Set to True to show the best guess that minimizes loss
+SHOW_PERTURBATIONS = False  # Set to True to show perturbations of the initial guess
+SHOW_BEST_GUESS = True  # Set to True to show the best guess that minimizes loss
+
+# Global variables for multiple shifted versions of Group B
+GENERATE_MULTIPLE_SHIFTS = True  # Set to True to generate multiple shifted versions of Group B
+NUM_SHIFTS = 10  # Number of different shifted versions to generate
+SHIFT_VARIATION = 0.5  # Controls the diversity of shifts (higher = more diverse)
 
 def generate_circle_data(n_samples, sigma=0.1):
     """
@@ -137,15 +146,19 @@ circle_data_group1 = generate_circle_data(N_SAMPLES_GROUP1, SIGMA)
 circle_data_group1['group'] = 'A'  # Add group identifier
 
 # Generate the second group with theta_r in [π/8, 3π/8]
-def generate_circle_data_group2(n_samples, sigma=0.1):
+def generate_circle_data_group2(n_samples, sigma=0.1, mean_angle=np.pi/4):
     """
     Generates second group of data points with theta_r normally distributed
-    around π/4 and random labels.
+    around the specified mean angle and random labels.
+    
+    Args:
+        n_samples (int): Number of samples to generate
+        sigma (float): Standard deviation of the noise
+        mean_angle (float): Mean angle in radians for the distribution
     """
-    # Generate random angles normally distributed around π/4
-    mean = np.pi/4
+    # Generate random angles normally distributed around the mean angle
     std_dev = np.pi/16  # A reasonable spread around the mean
-    theta_r = np.random.normal(mean, std_dev, n_samples)
+    theta_r = np.random.normal(mean_angle, std_dev, n_samples)
     
     # Generate points on the unit circle
     x1 = np.cos(theta_r)
@@ -169,12 +182,93 @@ def generate_circle_data_group2(n_samples, sigma=0.1):
     
     return df
 
-# Generate the second group
+# Generate the second group (original position)
 circle_data_group2 = generate_circle_data_group2(N_SAMPLES_GROUP2, SIGMA)
 circle_data_group2['group'] = 'B'  # Add group identifier
 
-# Combine both groups
-circle_data = pd.concat([circle_data_group1, circle_data_group2], ignore_index=True)
+# Generate the shifted second group with mean at 3π/16
+circle_data_group2_shifted = generate_circle_data_group2(N_SAMPLES_GROUP2, SIGMA, mean_angle=np.pi/16)
+circle_data_group2_shifted['group'] = 'B_shifted'  # Add group identifier
+
+def generate_multiple_shifted_group_b(base_group_b, n_shifts=NUM_SHIFTS, sigma=SIGMA, variation=SHIFT_VARIATION):
+    """
+    Generates multiple variations of shifted Group B points.
+    
+    Args:
+        base_group_b (pd.DataFrame): The original Group B dataframe
+        n_shifts (int): Number of different shifted versions to generate
+        sigma (float): Standard deviation of the noise
+        variation (float): Controls how diverse the shifts are
+        
+    Returns:
+        list: List of dataframes, each containing a shifted version of Group B
+    """
+    shifted_groups = []
+    
+    # Generate shifts "all over the place" by using different mean angles
+    # Distribute angles across the circle for diversity
+    for i in range(n_shifts):
+        # Create diverse mean angles between 0 and 2π
+        mean_angle = (i / n_shifts) * 2 * np.pi * variation
+        
+        # Generate a new shifted group
+        shifted_group = generate_circle_data_group2(
+            n_samples=len(base_group_b),
+            sigma=sigma,
+            mean_angle=mean_angle
+        )
+        
+        # Add group identifier with index
+        shifted_group['group'] = f'B_shifted_{i}'
+        
+        shifted_groups.append(shifted_group)
+    
+    return shifted_groups
+
+# Generate multiple shifted versions of Group B if enabled
+multiple_shifted_groups = []
+if GENERATE_MULTIPLE_SHIFTS:
+    multiple_shifted_groups = generate_multiple_shifted_group_b(circle_data_group2)
+
+# Create a modified version of Group B for the new evaluation scenario
+# Start with a copy of the original Group B data
+circle_data_group2_modified = circle_data_group2.copy()
+
+# Only modify the theta values for label 1 points in Group B
+# Subtract 3π/16 from each point's theta value for label 1 points
+label_1_mask = circle_data_group2_modified['y'] == 1
+if any(label_1_mask):
+    # Calculate the original theta values (inverse tangent of x2/x1)
+    original_theta = np.arctan2(
+        circle_data_group2_modified.loc[label_1_mask, 'x2'],
+        circle_data_group2_modified.loc[label_1_mask, 'x1']
+    )
+    
+    # Subtract 3π/16 from the theta values
+    shift_amount = 3 * np.pi / 16
+    new_theta = original_theta - shift_amount
+    
+    # Convert back to Cartesian coordinates (preserving the radius)
+    radius = np.sqrt(
+        circle_data_group2_modified.loc[label_1_mask, 'x1']**2 +
+        circle_data_group2_modified.loc[label_1_mask, 'x2']**2
+    )
+    
+    # Update the coordinates
+    circle_data_group2_modified.loc[label_1_mask, 'x1'] = radius * np.cos(new_theta)
+    circle_data_group2_modified.loc[label_1_mask, 'x2'] = radius * np.sin(new_theta)
+
+# Mark this as the modified group
+circle_data_group2_modified['group'] = 'B_modified'
+
+# Combine groups for the new evaluation scenario
+circle_data = pd.concat([circle_data_group1, circle_data_group2_modified], ignore_index=True)
+
+# Calculate loss using the original best fit value on the modified data
+modified_loss = calculate_log_loss(circle_data, BEST_FIT_THETA)
+print(f"\nOriginal loss with best fit (θ={BEST_FIT_THETA:.4f} rad): {ORIGINAL_LOSS:.4f}")
+print(f"New loss with modified Group B label 1 points: {modified_loss:.4f}")
+print(f"Difference in loss: {modified_loss - ORIGINAL_LOSS:.4f}")
 
 # --- Display Sample Output ---
 print("Generated Data Head:")
@@ -198,15 +292,22 @@ if DIFFERENTIATE_GROUPS and not only_one_group:
         ('A', 1): 'firebrick',
         # New colors for Group B
         ('B', 0): 'limegreen',
-        ('B', 1): 'darkgreen'
+        ('B', 1): 'darkgreen',
+        # Colors for shifted Group B (green)
+        ('B_shifted', 0): 'limegreen',
+        ('B_shifted', 1): 'darkgreen'
     }
 else:
-    # Same colors regardless of group
+    # Same colors regardless of group, except for modified Group B label 1 points
     color_map = {
         ('A', 0): 'skyblue',
         ('A', 1): 'firebrick',
         ('B', 0): 'skyblue',
-        ('B', 1): 'firebrick'
+        ('B', 1): 'firebrick',
+        ('B_shifted', 0): 'limegreen',
+        ('B_shifted', 1): 'darkgreen',
+        ('B_modified', 0): 'skyblue',
+        ('B_modified', 1): 'green'  # Changed to green as requested
     }
 
 # Use a consistent marker
@@ -215,7 +316,9 @@ marker = 'o'
 # Scatter plot points by group and label
 for (group_name, label_val), group_df in circle_data.groupby(['group', 'y']):
     # Skip groups that are not shown
-    if (group_name == 'A' and not SHOW_GROUP_A) or (group_name == 'B' and not SHOW_GROUP_B):
+    if (group_name == 'A' and not SHOW_GROUP_A) or \
+       (group_name == 'B' and not SHOW_GROUP_B) or \
+       (group_name == 'B_shifted' and not SHOW_SHIFTED_GROUP_B):
         continue
     
     # Skip labels that are not shown
@@ -252,9 +355,9 @@ x_vals = np.array([-1.5, 1.5])
 
 # Plot the best guess line if enabled
 if SHOW_BEST_GUESS:
-    # Find the optimal theta that minimizes the log loss
-    best_theta = find_optimal_theta(circle_data)
-    best_loss = calculate_log_loss(circle_data, best_theta)
+    # Use the predefined best fit theta instead of finding it
+    best_theta = BEST_FIT_THETA
+    best_loss = modified_loss
     
     # Plot the best guess line with a more subdued color
     best_y_vals = np.tan(best_theta) * x_vals
@@ -271,7 +374,7 @@ if SHOW_BEST_GUESS:
         
         # Display the loss value with less transparency and a matching edge color
         ax.text(text_x, text_y + text_y_offset,
-                f'Best θ: {best_theta:.4f} rad ({best_theta*180/np.pi:.1f}°), Loss: {best_loss:.4f}',
+                f'Best θ: {best_theta:.4f} rad ({best_theta*180/np.pi:.1f}°)\nOriginal Loss: {ORIGINAL_LOSS:.4f}\nNew Loss: {best_loss:.4f}\nDiff: {best_loss - ORIGINAL_LOSS:.4f}',
                 fontsize=9, color='#336699', ha='right', va='bottom',
                 bbox=dict(facecolor='white', alpha=0.95, edgecolor='#336699', pad=3))
     
@@ -346,18 +449,24 @@ ax.set_ylim(-1.5, 1.5)
 legend_elements = []
 
 # Add data points to legend based on which groups and labels are shown
-if SHOW_GROUP_A and SHOW_GROUP_B and DIFFERENTIATE_GROUPS:
+if SHOW_GROUP_A and (SHOW_GROUP_B or SHOW_SHIFTED_GROUP_B) and DIFFERENTIATE_GROUPS:
     # Full legend with group differentiation
     if SHOW_LABEL_0:
         legend_elements.extend([
-            Line2D([0], [0], marker=marker, color='w', label='Group A, Label 0', markerfacecolor=color_map[('A', 0)], markersize=8),
-            Line2D([0], [0], marker=marker, color='w', label='Group B, Label 0', markerfacecolor=color_map[('B', 0)], markersize=8)
+            Line2D([0], [0], marker=marker, color='w', label='Group A, Label 0', markerfacecolor=color_map[('A', 0)], markersize=8)
         ])
+        if SHOW_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Group B, Label 0', markerfacecolor=color_map[('B', 0)], markersize=8))
+        if SHOW_SHIFTED_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Group B (Shifted), Label 0', markerfacecolor=color_map[('B_shifted', 0)], markersize=8))
     if SHOW_LABEL_1:
         legend_elements.extend([
-            Line2D([0], [0], marker=marker, color='w', label='Group A, Label 1', markerfacecolor=color_map[('A', 1)], markersize=8),
-            Line2D([0], [0], marker=marker, color='w', label='Group B, Label 1', markerfacecolor=color_map[('B', 1)], markersize=8)
+            Line2D([0], [0], marker=marker, color='w', label='Group A, Label 1', markerfacecolor=color_map[('A', 1)], markersize=8)
         ])
+        if SHOW_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Group B, Label 1', markerfacecolor=color_map[('B', 1)], markersize=8))
+        if SHOW_SHIFTED_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Group B (Shifted), Label 1', markerfacecolor=color_map[('B_shifted', 1)], markersize=8))
 elif SHOW_GROUP_A and not SHOW_GROUP_B:
     # Only Group A
     if SHOW_LABEL_0:
@@ -370,12 +479,18 @@ elif SHOW_GROUP_B and not SHOW_GROUP_A:
         legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Group B, Label 0', markerfacecolor='skyblue', markersize=8))
     if SHOW_LABEL_1:
         legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Group B, Label 1', markerfacecolor='firebrick', markersize=8))
-elif SHOW_GROUP_A and SHOW_GROUP_B:
-    # Both groups without differentiation
+elif SHOW_GROUP_A and (SHOW_GROUP_B or SHOW_SHIFTED_GROUP_B):
+    # Groups without differentiation between A and B, but B_shifted is different
     if SHOW_LABEL_0:
-        legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Label 0', markerfacecolor='skyblue', markersize=8))
+        if SHOW_GROUP_A or SHOW_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Label 0', markerfacecolor='skyblue', markersize=8))
+        if SHOW_SHIFTED_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Label 0 (Shifted)', markerfacecolor='limegreen', markersize=8))
     if SHOW_LABEL_1:
-        legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Label 1', markerfacecolor='firebrick', markersize=8))
+        if SHOW_GROUP_A or SHOW_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Label 1', markerfacecolor='firebrick', markersize=8))
+        if SHOW_SHIFTED_GROUP_B:
+            legend_elements.append(Line2D([0], [0], marker=marker, color='w', label='Label 1 (Shifted)', markerfacecolor='darkgreen', markersize=8))
 
 # Add commented out elements
 #Line2D([0], [0], color='black', lw=2, linestyle='--', label='Decision Boundary (θ=π/4)'),
@@ -398,11 +513,14 @@ ax.legend(handles=legend_elements, title='Legend', loc='best')
 filename_parts = []
 
 # Add group information to filename
-if SHOW_GROUP_A and SHOW_GROUP_B:
+if SHOW_GROUP_A and (SHOW_GROUP_B or SHOW_SHIFTED_GROUP_B):
     if DIFFERENTIATE_GROUPS:
         filename_parts.append("with_differentiated_groups")
     else:
-        filename_parts.append("with_both_groups")
+        if SHOW_SHIFTED_GROUP_B:
+            filename_parts.append("with_shifted_group_B")
+        else:
+            filename_parts.append("with_both_groups_modified_B")
 elif SHOW_GROUP_A:
     filename_parts.append("with_group_A_only")
 elif SHOW_GROUP_B:
@@ -437,3 +555,76 @@ print(f"Plot saved to {filename}")
 
 # Show the plot
 plt.show()
+
+# Create plots for each shifted Group B if enabled
+if GENERATE_MULTIPLE_SHIFTS and multiple_shifted_groups:
+    import os
+    
+    # Create subdirectory for shifted plots if it doesn't exist
+    shifted_plots_dir = "static/plots/shifted_group_b"
+    os.makedirs(shifted_plots_dir, exist_ok=True)
+    
+    print(f"\nGenerating {len(multiple_shifted_groups)} shifted Group B plots...")
+    
+    # For each shifted group, create a separate plot
+    for i, shifted_group in enumerate(multiple_shifted_groups):
+        # Create a new figure for this shifted group
+        fig, ax = plt.subplots(figsize=(10, 8))
+        
+        # Plot the original Group A points for reference
+        if SHOW_GROUP_A:
+            for label_val, group_df in circle_data_group1.groupby('y'):
+                if (label_val == 0 and SHOW_LABEL_0) or (label_val == 1 and SHOW_LABEL_1):
+                    color = color_map[('A', label_val)]
+                    ax.scatter(group_df['x1'], group_df['x2'],
+                              c=color, marker='o', s=50, alpha=0.7)
+        
+        # Plot the shifted Group B points in green
+        for label_val, group_df in shifted_group.groupby('y'):
+            if (label_val == 0 and SHOW_LABEL_0) or (label_val == 1 and SHOW_LABEL_1):
+                # Use green colors for shifted points
+                color = 'limegreen' if label_val == 0 else 'darkgreen'
+                ax.scatter(group_df['x1'], group_df['x2'],
+                          c=color, marker='o', s=50, alpha=0.7)
+        
+        # Add titles and labels
+        shift_id = shifted_group['group'].iloc[0].split('_')[-1]
+        ax.set_title(f'Binary Classification with Shifted Group B (Variation {shift_id})')
+        
+        # Add grid and set equal aspect ratio
+        ax.grid(True, linestyle='--', alpha=0.6)
+        ax.set_aspect('equal')
+        
+        # Set axis limits
+        ax.set_xlim(-1.5, 1.5)
+        ax.set_ylim(-1.5, 1.5)
+        
+        # Create a custom legend
+        legend_elements = [
+            Line2D([0], [0], marker='o', color='w', label='Group A, Label 0',
+                   markerfacecolor='skyblue', markersize=8),
+            Line2D([0], [0], marker='o', color='w', label='Group A, Label 1',
+                   markerfacecolor='firebrick', markersize=8),
+            Line2D([0], [0], marker='o', color='w', label='Shifted Group B, Label 0',
+                   markerfacecolor='limegreen', markersize=8),
+            Line2D([0], [0], marker='o', color='w', label='Shifted Group B, Label 1',
+                   markerfacecolor='darkgreen', markersize=8)
+        ]
+        
+        # Add best guess line if enabled
+        if SHOW_BEST_GUESS:
+            best_y_vals = np.tan(BEST_FIT_THETA) * x_vals
+            ax.plot(x_vals, best_y_vals, color='#336699', linestyle='-', linewidth=2, label='Best Guess')
+            legend_elements.append(Line2D([0], [0], color='#336699', lw=2, linestyle='-', label='Best Guess'))
+        
+        ax.legend(handles=legend_elements, title='Legend', loc='best')
+        
+        # Save the plot to the shifted plots directory
+        shifted_filename = f"{shifted_plots_dir}/shifted_group_b_variation_{shift_id}.png"
+        plt.savefig(shifted_filename, dpi=300, bbox_inches='tight')
+        print(f"Shifted plot saved to {shifted_filename}")
+        
+        # Close the figure to free memory
+        plt.close(fig)
+    
+    print(f"All shifted Group B plots saved to {shifted_plots_dir}/")

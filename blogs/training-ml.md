@@ -59,9 +59,19 @@ width="400px" />
 
 Hence, we might expect to see a *shift* in the distribution of group B. That is, maybe the spam mailers might change how they send their mail and we could see them become normally distributed around say θ = 3π/16, i.e.,
 
-*Insert image of the group shifting by a bit*
+<div style="text-align: center;">
+<img src="../static/plots/binary_class_shift.png"
+ alt="Binary classification data with initial guess"
+width="400px" />
+</div>
 
 Now if we were to re-evaluate our current best model, we might see that our loss has increased. That is, the real world data responded to our model, leading to our model performing worse. This is showcased below. 
+
+<div style="text-align: center;">
+<img src="../static/plots/binary_class_new_loss.png"
+ alt="Binary classification data with initial guess"
+width="400px" />
+</div>
 
 Hence, it is clear that this game of cat and mouse under certain conditions can go on forever, but however, under other conditions we can get some nice behaviors. Perdomo et. al<sup>[3]</sup> cover this in their 2021 paper. To discuss their results we have to give a couple of definitions and get a bit technical. 
 
