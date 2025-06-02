@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D # Needed for custom legend
 import scipy.special # For logit function
 from scipy.optimize import minimize # For finding optimal theta
+import os
+import imageio.v2 as imageio
+from PIL import Image
+import time
 
 # Global parameters
 theta = np.pi/4  # 45 degrees as default
@@ -13,7 +17,7 @@ initial_guess = np.pi/16  # Initial guess at pi/16 radians
 # Save the current line of best fit value for reference
 BEST_FIT_THETA = 0.7955  # 45.6 degrees (0.7955 rad)
 ORIGINAL_LOSS = 0.3611  # Original loss value for reference
-DIFFERENTIATE_GROUPS = False  # Set to True to differentiate between groups
+DIFFERENTIATE_GROUPS = True  # Set to True to differentiate between groups (show Group B in green)
 SHOW_GROUP_A = True  # Set to True to show Group A
 SHOW_GROUP_B = True  # Set to True to show Group B
 SHOW_SHIFTED_GROUP_B = False  # Set to True to show the shifted Group B
@@ -25,9 +29,24 @@ SHOW_PERTURBATIONS = False  # Set to True to show perturbations of the initial g
 SHOW_BEST_GUESS = True  # Set to True to show the best guess that minimizes loss
 
 # Global variables for multiple shifted versions of Group B
-GENERATE_MULTIPLE_SHIFTS = True  # Set to True to generate multiple shifted versions of Group B
+GENERATE_MULTIPLE_SHIFTS = False  # Set to False for performative prediction visualization
 NUM_SHIFTS = 10  # Number of different shifted versions to generate
 SHIFT_VARIATION = 0.5  # Controls the diversity of shifts (higher = more diverse)
+
+# Performative prediction visualization parameters
+CREATE_PERFORMATIVE_GIF = True  # Set to True to create the performative prediction GIF
+NUM_ITERATIONS = 6  # Number of iterations in the model-data adaptation cycle
+PERFORMATIVE_SHIFT_AMOUNT = np.pi/16  # Amount to shift Group B in each iteration
+
+# Define random shift patterns to avoid convergence and make the model "walk around"
+SHIFT_PATTERNS = [
+    {'angle': np.pi/8, 'direction': -1},    # Shift counterclockwise
+    {'angle': np.pi/6, 'direction': 1},     # Shift clockwise
+    {'angle': np.pi/12, 'direction': -1},   # Small shift counterclockwise
+    {'angle': np.pi/4, 'direction': 1},     # Large shift clockwise
+    {'angle': np.pi/10, 'direction': -1},   # Medium shift counterclockwise
+    {'angle': np.pi/5, 'direction': 1},     # Medium shift clockwise
+]
 
 def generate_circle_data(n_samples, sigma=0.1):
     """
@@ -302,12 +321,12 @@ else:
     color_map = {
         ('A', 0): 'skyblue',
         ('A', 1): 'firebrick',
-        ('B', 0): 'skyblue',
-        ('B', 1): 'firebrick',
+        ('B', 0): 'limegreen',  # Changed to green for Group B
+        ('B', 1): 'darkgreen',  # Changed to dark green for Group B
         ('B_shifted', 0): 'limegreen',
         ('B_shifted', 1): 'darkgreen',
-        ('B_modified', 0): 'skyblue',
-        ('B_modified', 1): 'green'  # Changed to green as requested
+        ('B_modified', 0): 'limegreen',  # Changed to green for Group B
+        ('B_modified', 1): 'darkgreen'   # Changed to dark green for Group B
     }
 
 # Use a consistent marker
@@ -628,3 +647,182 @@ if GENERATE_MULTIPLE_SHIFTS and multiple_shifted_groups:
         plt.close(fig)
     
     print(f"All shifted Group B plots saved to {shifted_plots_dir}/")
+
+# Create performative prediction visualization if enabled
+if CREATE_PERFORMATIVE_GIF:
+    # Create directory for performative prediction frames
+    performative_dir = "static/plots/performative_prediction"
+    os.makedirs(performative_dir, exist_ok=True)
+    
+    print(f"\nGenerating performative prediction visualization with {NUM_ITERATIONS} iterations...")
+    
+    # Initialize lists to store data for each iteration
+    all_data = []
+    all_models = []
+    all_losses = []
+    
+    # Start with the original data (Group A and Group B)
+    current_data = pd.concat([circle_data_group1, circle_data_group2], ignore_index=True)
+    all_data.append(current_data.copy())
+    
+    # Find the initial optimal model
+    current_theta = find_optimal_theta(current_data)
+    all_models.append(current_theta)
+    
+    # Calculate initial loss
+    current_loss = calculate_log_loss(current_data, current_theta)
+    all_losses.append(current_loss)
+    
+    # Perform iterations of model-data adaptation
+    for i in range(NUM_ITERATIONS):
+        print(f"Iteration {i+1}/{NUM_ITERATIONS}")
+        
+        # 1. Extract Group B data from current data
+        group_b_data = current_data[current_data['group'] == 'B'].copy()
+        
+        # 2. Shift Group B data in response to the current model using the predefined patterns
+        # This creates more random, non-converging shifts
+        shift_pattern = SHIFT_PATTERNS[i % len(SHIFT_PATTERNS)]
+        shift_amount = shift_pattern['angle'] * shift_pattern['direction']
+        
+        # Calculate the original theta values (inverse tangent of x2/x1)
+        original_theta = np.arctan2(
+            group_b_data['x2'],
+            group_b_data['x1']
+        )
+        
+        # Apply the shift
+        new_theta = original_theta + shift_amount
+        
+        # Convert back to Cartesian coordinates (preserving the radius)
+        radius = np.sqrt(
+            group_b_data['x1']**2 +
+            group_b_data['x2']**2
+        )
+        
+        # Update the coordinates for all points in Group B
+        group_b_data['x1'] = radius * np.cos(new_theta)
+        group_b_data['x2'] = radius * np.sin(new_theta)
+        
+        print(f"  Shifted Group B by {shift_amount:.4f} rad")
+        
+        # 3. Combine Group A with shifted Group B
+        group_a_data = current_data[current_data['group'] == 'A'].copy()
+        current_data = pd.concat([group_a_data, group_b_data], ignore_index=True)
+        all_data.append(current_data.copy())
+        
+        # 4. Find the new optimal model for the shifted data
+        current_theta = find_optimal_theta(current_data)
+        all_models.append(current_theta)
+        
+        # 5. Calculate new loss
+        current_loss = calculate_log_loss(current_data, current_theta)
+        all_losses.append(current_loss)
+    
+    # Create frames for the GIF
+    frame_filenames = []
+    
+    for i, (data, model, loss) in enumerate(zip(all_data, all_models, all_losses)):
+        # Create a new figure
+        fig, ax = plt.subplots(figsize=(10, 8))
+        
+        # Plot the data points
+        for (group_name, label_val), group_df in data.groupby(['group', 'y']):
+            color = color_map[(group_name, label_val)]
+            ax.scatter(group_df['x1'], group_df['x2'],
+                      c=color, marker='o', s=50, alpha=0.7)
+        
+        # Plot the model (decision boundary)
+        x_vals = np.array([-1.5, 1.5])
+        y_vals = np.tan(model) * x_vals
+        ax.plot(x_vals, y_vals, color='#336699', linestyle='-', linewidth=2)
+        
+        # Add iteration information and loss
+        iteration_text = "Initial State" if i == 0 else f"Iteration {i}"
+        ax.set_title(f'Performative Prediction: {iteration_text}')
+        
+        # Add loss information
+        text_x = 1.0
+        text_y = np.tan(model) * text_x
+        text_y_offset = 0.1
+        ax.text(text_x, text_y + text_y_offset,
+                f'Model θ: {model:.4f} rad ({model*180/np.pi:.1f}°)\nLoss: {loss:.4f}',
+                fontsize=9, color='#336699', ha='right', va='bottom',
+                bbox=dict(facecolor='white', alpha=0.95, edgecolor='#336699', pad=3))
+        
+        # Add explanation text based on iteration
+        if i == 0:
+            explanation = "Initial model fit to data"
+        elif i % 2 == 1:
+            explanation = "Group B (green) shifted in response to model"
+        else:
+            explanation = "Model adjusted to shifted data"
+        
+        ax.text(-1.4, -1.4, explanation, fontsize=12, color='black',
+                bbox=dict(facecolor='white', alpha=0.8, edgecolor='gray', pad=5))
+        
+        # Add grid and set equal aspect ratio
+        ax.grid(True, linestyle='--', alpha=0.6)
+        ax.set_aspect('equal')
+        
+        # Set axis limits
+        ax.set_xlim(-1.5, 1.5)
+        ax.set_ylim(-1.5, 1.5)
+        
+        # Create a custom legend
+        legend_elements = [
+            Line2D([0], [0], marker='o', color='w', label='Group A, Label 0',
+                   markerfacecolor='skyblue', markersize=8),
+            Line2D([0], [0], marker='o', color='w', label='Group A, Label 1',
+                   markerfacecolor='firebrick', markersize=8),
+            Line2D([0], [0], marker='o', color='w', label='Group B, Label 0',
+                   markerfacecolor='skyblue', markersize=8),
+            Line2D([0], [0], marker='o', color='w', label='Group B, Label 1',
+                   markerfacecolor='firebrick', markersize=8),
+            Line2D([0], [0], color='#336699', lw=2, linestyle='-', label='Model Decision Boundary')
+        ]
+        
+        ax.legend(handles=legend_elements, title='Legend', loc='best')
+        
+        # Save the frame
+        frame_filename = f"{performative_dir}/frame_{i:02d}.png"
+        plt.savefig(frame_filename, dpi=300, bbox_inches='tight')
+        frame_filenames.append(frame_filename)
+        print(f"Frame saved to {frame_filename}")
+        
+        # Close the figure to free memory
+        plt.close(fig)
+    
+    # Create the GIF
+    gif_filename = f"{performative_dir}/performative_prediction.gif"
+    
+    # Read all frames
+    frames = []
+    for filename in frame_filenames:
+        frames.append(Image.open(filename))
+    
+    # Save as GIF
+    frames[0].save(
+        gif_filename,
+        save_all=True,
+        append_images=frames[1:],
+        duration=1000,  # Duration per frame in milliseconds
+        loop=0  # 0 means loop indefinitely
+    )
+    
+    print(f"GIF saved to {gif_filename}")
+    
+    # Create a static image showing all frames side by side for the blog
+    fig, axes = plt.subplots(1, len(frames), figsize=(5*len(frames), 5))
+    
+    for i, (ax, filename) in enumerate(zip(axes, frame_filenames)):
+        img = plt.imread(filename)
+        ax.imshow(img)
+        ax.set_title(f"Step {i}")
+        ax.axis('off')
+    
+    plt.tight_layout()
+    static_filename = f"{performative_dir}/performative_prediction_steps.png"
+    plt.savefig(static_filename, dpi=300, bbox_inches='tight')
+    print(f"Static image saved to {static_filename}")
+    plt.close(fig)

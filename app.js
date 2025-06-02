@@ -11,7 +11,7 @@ const blogs = [
     title: 'Training Models That Affect Their Data',
     date: '2025-04-24',
     url: '/blog/training-ml',
-    path: 'blogs/training-ml.md'
+    path: 'blogs/training-ml.html'
   },
 ]; 
 
@@ -94,29 +94,37 @@ function app() {
         getBlogByUrl(url) {
             return this.blogs.find(blog => blog.url === url);
         }, 
-        async renderBlog(markdownPath) {
+        async renderBlog(htmlPath) {
           try {
-              const response = await fetch(markdownPath);
+              const response = await fetch(htmlPath);
               const content = await response.text();
               
-              // Configure marked options
-              marked.setOptions({
-                  highlight: function(code, lang) {
-                      if (lang && hljs.getLanguage(lang)) {
-                          return hljs.highlight(code, {language: lang}).value;
-                      } else {
-                          return hljs.highlightAuto(code).value;
-                      }
-                  },
-                  langPrefix: 'hljs language-',
-                  breaks: true,
-                  gfm: true
-              });
-              setTimeout(() => hljs.highlightAll(), 0);
+              // Return content immediately so it's displayed
+              setTimeout(() => {
+                  // Apply syntax highlighting to code blocks
+                  hljs.highlightAll();
                   
-              return { content: marked.parse(content) };
+                  // Trigger MathJax to process any LaTeX content
+                  if (window.MathJax) {
+                      console.log("MathJax found, typesetting...");
+                      try {
+                          // Use a longer timeout to ensure MathJax has time to initialize
+                          MathJax.typesetPromise().then(() => {
+                              console.log("MathJax typesetting complete");
+                          }).catch(err => {
+                              console.error("MathJax typesetting error:", err);
+                          });
+                      } catch (err) {
+                          console.error("MathJax error:", err);
+                      }
+                  } else {
+                      console.error("MathJax not found or not initialized");
+                  }
+              }, 100); // Increased timeout to give more time for content to be rendered
+                  
+              return { content: content };
           } catch (error) {
-              console.error('Error loading markdown:', error);
+              console.error('Error loading HTML content:', error);
               return { content: '<p>Error loading blog content.</p>' };
           }
       }

@@ -12,6 +12,28 @@
   <link rel="stylesheet" href="styles/links.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+  
+  <!-- MathJax for LaTeX rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      },
+      startup: {
+        pageReady: function() {
+          return MathJax.startup.defaultPageReady().then(function() {
+            console.log('MathJax initial typesetting complete');
+          });
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
     [x-cloak] {
@@ -52,22 +74,18 @@
           Hey, my name is Seif. I'm an incoming Masters student at the University of Alberta studying Statistical Machine Learning.
         </p>
         <p class="bio">
-          I'm a nerd for all things Mathematics. The less applications and the higher likelihood of being
-          homeless, the better. Unfortunately, its come to my recent attention that I need to eat. Luckily,
-          I have found a passion in the development of robust machine learning algorithms for real world applications.
-          With the barage of LLMs, and AI algorithms in almost all aspects of our lives, developing fair and robust
-          algorithms is more important than ever. Currently my work involves applying <a href="">Distributionally Robust Optimization</a>
-          to <a href="">Performative Prediction</a> settings. 
-        </p>
-        <p class="bio">
-          When I'm not pulling my hair out struggling to prove theorems, I love to study my religion, Islam.
-          Whether its reading the Quran, learning Arabic, or memorizing poetry, ...
-
+          My journey into Machine Learning (ML) starts from a strong passion for mathematics (no matter how abstract it can be) and 
+          a desire to see it being applied to complex, real-world problems. This naturally has led to 
+          my interest in the theoretical aspects of the field, where I am paritcularly enjoying the mathematical 
+          sophistication and its direct relevance to current applications. My research is currently focused on fairness 
+          in Machine Learning, in particular, using Distributionally Robust Optimization (DRO) to train models that are fair. 
+          Beyond this, I am actively (trying to) broaden my understanding of the wider ML landscape, 
+          with an interest in exploring advancements in Reinforcement Learning and Generative AI.
         </p>
       </section>
 
       <section x-show="currentPath === '/blog'" x-cloak>
-        <p class="sub-title">Real writing, to help me postpone LLM dependence...</p>
+        <p class="sub-title">Just a bunch of my thoughts put in a place</p>
         <div class="item-list">
           <template x-for="blog in blogs" :key="blog.url">
             <div class="item-entry" @click="navigate(blog.url)">
@@ -107,9 +125,6 @@
       </section>
     </main>
   </div>
-  <footer>
-    This site is fork from my good friend <a href="">Justin Meimar's Website</a>
-  </footer>
   <script src="app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {

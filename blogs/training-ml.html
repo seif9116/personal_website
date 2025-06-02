@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Fair Models That Affect Their Data</title>
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            max-width: 400px;
+            height: auto;
+        }
+        .image-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .image-row img {
+            max-width: 300px;
+            height: auto;
+        }
+        .image-caption {
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        /* Reference styling */
+        sup {
+            vertical-align: super;
+            font-size: smaller;
+        }
+        .citation {
+            color: #0066cc;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .citation:hover {
+            text-decoration: underline;
+        }
+        .references {
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+            padding-top: 20px;
+        }
+        .reference-item {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            text-indent: -30px;
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h2>Training Fair Models That Affect Their Data</h2>
+        
+        <p>The way models classically work is you have training data, you train your model on said data, then you deploy the model into the real world. The assumption is whatever data you use to train your data will be an accurate representation of what the model will see in the real world (i.e., identically distributed). What happens if this isn't the case? Worse, what happens if the action of deploying the model is explicitly what causes the real world to be different from its training data? How do we get around this? How can we train our models to be more efficient in these situations?</p>
+        
+        <p>This problem becomes even more critical when we consider fairness. Many models are trained to perform well on average cases, which can lead them to ignore or underperform on minority groups within the data. These biases don't just affect model performance; they can be actively reinforced when the model's decisions influence future data. For example, a loan approval model that performs worse for minority groups might reject more applications from these groups unjustly, leading to worse financial outcomes and reinforcing the very disparities present in the training data.</p>
+        
+        <p>My current research looks to solve this problem. Here's the journey I'm going to take you on,</p>
+        
+        <ol>
+            <li>Performative Prediction
+                <ul>
+                    <li>When models change their data</li>
+                </ul>
+            </li>
+            <li>Distributionally Robust Optimization
+                <ul>
+                    <li>Making models robust to changes</li>
+                </ul>
+            </li>
+            <li>Combining the two
+                <ul>
+                    <li>Training fair models that affect their data</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>1. Performative Prediction</h3>
+        <p>Okay first, what is performative prediction. As we are all aware, machine learning (ML) models are being used more widely than ever for decisions in almost all areas of life. Whether it's in analyzing medical images<sup><a id="cite-ref-1" href="#ref-1" class="citation">[1]</a></sup>, fraud-detection<sup><a id="cite-ref-2" href="#ref-2" class="citation">[2]</a></sup>, or credit risk<sup><a id="cite-ref-2-2" href="#ref-2" class="citation">[2]</a></sup>, machine learning is taking more and more precedence in our lives. As these models start making decisions on increasingly more important data, and larger institutions start using them, we face the very real problem of the models making decisions that influence the outcome they are trying to predict. This is called <em>performative prediction</em>.</p>
+        
+        <p>As a dummy example to allow us to build intuition, lets look at binary classification. Let's assume we are analyzing the following data,</p>
+        <div class="image-container">
+            <img src="../static/plots/circle_classification_without_groups.png" alt="Binary classification data">
+            <p class="image-caption">Figure 1: Binary classification data showing two classes (spam and non-spam) represented by red and blue circles.</p>
+        </div>
+        
+        <p>Here we are looking to separate the blue circles from the red circles. In the real world this might represent spam detection, where the red circles are spam mail and the blue circles are not. As an initial guess we might first start with a model estimate as so,</p>
+        
+        <div class="image-container">
+            <img src="../static/plots/binary_classification_with_initial_guess.png" alt="Binary classification data with initial guess">
+            <p class="image-caption">Figure 2: Initial classification boundary attempting to separate the two classes.</p>
+        </div>
+        
+        <p>Clearly this is not the best guess. To see how we can change our model, we can first evaluate the (log) loss on this current guess, then try performing a small rotation on it clockwise and counterclockwise to see if the model's loss goes up or down (gradient descent) and follow the direction that decreases the loss. Let's see it in this example.</p>
+        
+        <div class="image-container">
+            <img src="../static/plots/binary_class_loss_pert_gain.png" alt="Binary classification data with initial guess">
+            <p class="image-caption">Figure 3: Loss evaluation showing how rotating the decision boundary counterclockwise decreases the loss function.</p>
+        </div>
+        
+        <p>Here we notice the loss decreases if we rotate our guess counterclockwise, and so we follow this and repeat the process until we have our best model as shown below.</p>
+        
+        <div class="image-container">
+            <img src="../static/plots/binary_classification_with_best_guess_and_loss.png" alt="Binary classification data with initial guess">
+            <p class="image-caption">Figure 4: Optimized classification boundary after gradient descent, showing the minimized loss function.</p>
+        </div>
+        
+        <p>Great! Up until this point we have done <em>classical machine learning</em>. Nothing so far has anything to do with models affecting their data or performative prediction. So let's consider that possibility. First notice that the data is actually made up of two distinct groups:</p>
+        <div class="image-row">
+            <img src="../static/plots/binary_classification_with_group_A_only.png" alt="Binary classification data with group A only">
+            <img src="../static/plots/binary_classification_with_group_B_only.png" alt="Binary classification data with group B only">
+        </div>
+        <p class="image-caption">Figure 5: The dataset split into two distinct groups - Group A (left) and Group B (right), which could represent different demographic populations.</p>
+        
+        <p>These two groups could represent a variety of things, perhaps visible minorities and non-minorities, perhaps male and female, etc. Here in the spam example we might consider group A to be groups that are not able to change the content of their mail, while group B is. Maybe group B is better capable at confiscating their intention. Regardless, in response to the models deployment, and its successful ability at classifying spam versus not spam, we may suspect the spam mailers to change the content of their mail in response to the model to avoid detection. For example, notice that the spam points of group B are normally distributed around $\theta=\pi/4$, which happens to correspond pretty closely to our models line.</p>
+        
+        <div class="image-container">
+            <img src="../static/plots/binary_class_normal_dist_group_B.png" alt="Binary classification data with initial guess">
+            <p class="image-caption">Figure 6: Normal distribution of Group B data points around $\theta=\pi/4$, closely aligned with our model's decision boundary.</p>
+        </div>
+        
+        <p>Hence, we might expect to see a <em>shift</em> in the distribution of group B. 
+            That is, maybe the spam mailers might change how they send their mail and we could see them become normally distributed around say $\theta=3\pi/16$,
+             i.e.,</p>
+        
+        <div class="image-container">
+            <img src="../static/plots/binary_class_shift.png" alt="Binary classification data with initial guess">
+            <p class="image-caption">Figure 7: The distribution shift in Group B as spam mailers adapt to the model, now normally distributed around $\theta=3\pi/16$.</p>
+        </div>
+        
+        <p>Now if we were to re-evaluate our current best model, we might see that our loss has increased. That is, the real world data responded to our model, leading to our model performing worse. This is showcased below.</p>
+         <div class="image-container">
+            <img src="../static/plots/binary_class_new_loss.png" alt="Binary classification data with initial guess">
+            <p class="image-caption">Figure 8: Increased loss function after the distribution shift, demonstrating how model performance deteriorates when data adapts to the model.</p>
+        </div>       
+        <p>It's easy to see how this game could go on forever. For example, if in response to this new model the data moved sporadically, the model would need to be retrained, leading to another shift in the data, requiring further model adjustments, and so on in a continuous cycle.</p>
+
+        <div class="image-container">
+            <img src="../static/plots/performative_prediction/performative_prediction.gif" alt="Performative prediction cycle showing model-data adaptation">
+            <p class="image-caption">Figure 9: Animation of the performative prediction cycle showing how the model fits to data, Group B shifts in response, the model adjusts, and the cycle continues.</p>
+        </div>
+        
+        <p>Perdomo et. al<sup><a id="cite-ref-3" href="#ref-3" class="citation">[3]</a></sup> cover this in their 2021 paper. To discuss their results we have to give a couple of definitions and get a bit technical.</p>
+    
+        <p>The first idea I want you to wrap your head around is <em>a space of distributions</em>. Think of this 
+        as all the different 'universes' we could be in, i.e., the different ways our data might have ended up looking like.</p>
+        <div class="image-container">
+            <img src="../static/plots/space_of_distributions.png">
+            <p class="image-caption">Figure 10: Visualization of the space of distributions, representing different possible data distributions or "universes" our model might encounter.</p>
+        </div>
+
+        When we deploy our model, in each 'world', we expect the distribution to change in some way.
+        For this reason, each time we deploy model, we expect to get out a new distribution in the space of distributions.
+        Since the 'best' model is determined by the distribution, we can think of there being a map between distributions. 
+
+        <div class="image-container">
+            <img src="../static/plots/contraction_map.png" style="max-width: 600px;">
+            <p class="image-caption">Figure 11: Illustration of the performative prediction map showing how one distribution transforms into another after model deployment.</p>
+        </div>
+
+        That is, each distribution leads to a new distribution, and so there is a function 
+        that describes this behavior. Perdomo et. al<sup><a id="cite-ref-3" href="#ref-3" class="citation">[3]</a></sup>
+        study what behaviors are needed on this map, and the loss function (a way to evaluate the models prediction) to have convergence.
+
+        The main idea, is that we require, <em>contraction conditions</em> on the map and the loss function. These conditions are
+        <ol>
+            <li>The map is $\epsilon$-sensitive</li>
+            <li>The loss function is $\beta$-jointly smooth and $\gamma$-strongly convex</li>
+        </ol>
+        
+        The first condition is fairly intuitive. We need the distribution to be $\epsilon$-sensitive. This means
+        that we want the space of distributions to be shrinking. The following figure showcases why we would want this to be the case.
+        <div class="image-container">
+            <img src="../static/plots/contracting.png">
+            <p class="image-caption">Figure 12: Visualization of a contraction map where the distance between distributions decreases with each iteration, allowing convergence to a stable distribution.</p>
+        </div>
+
+        Since the 'distance' between distirbutions is getting smaller through each iteration, we end up 'closing'
+        in on a distribution. The other two conditions concerning the loss function, are in essence, similar. One part 
+        that's important to note is that the 'strength' of each of these contraction conditions are parameterzied by a parameters, 
+        $\epsilon$, $\beta$, and $\gamma$. Perdomo et. al<sup><a id="cite-ref-3" href="#ref-3" class="citation">[3]</a></sup> 
+        give a relationship between these parameters for us to have convergence. They showed that if we have $\epsilon < \frac{\gamma}{\beta}$, then we have
+        convergence. 
+
+        <h4>Key Takeaways</h4>
+        So in leaving this section, I want to highlight the following,
+        <ol>
+            <li>Models can affect the data they are trying to predict</li>
+            <li>If the model-data relationship satisifies specific contraction conditions, then we get convergence</li>
+        </ol>
+
+        Okay, so that's great, but what's left to address? Well, as we said, the data may 
+        react each time to the deployment of the model, but our concern now is what if this doesn't happen uniformly? 
+        Specifically, what if some minority groups react more than others? In this way, if there are certain biases that are present within the data,
+        they can end up being reinforced through the deployment of the model. This is a problem we look to address, and the way we do this is through 
+        a method called <em>Distributionally Robust Optimization</em>.
+
+
+        <h3>2. Distributionally Robust Optimization</h3>
+
+        To understand Distributionally Robust Optimization, recall how we classically train models. We have a loss function,
+        we evaluate it on the entire dataset, and we try to bring down the <em>average</em> loss. This is called <em>Empirical Risk Minimization</em> (ERM).
+        Distributionally Robust Optimization looks at it in a different way. Instead of just looking to bring down the average loss, we think 
+        of all those different 'universes' we could be in (i.e., distributions) and we evaluate the loss in each of these universes. Then we compare them
+        and see what was the worse case scenario. This is what we look to minimize. This is called <em>Distributionally Robust Optimization</em> (DRO).
+
+        <div class="image-container">
+            <img src="../static/plots/erm_vs_rrm.png" style="max-width: 600px;">
+            <p class="image-caption">Figure 13: Comparison of the ERM against the DRO process showing how we evaluate the loss in each universe and then take the worst case scenario.</p>
+        </div>
+
+        To see how DRO can be used to train models that are fair, we can look at the example provided by Peet-Par&eacute; <sup><a id="cite-ref-4" href="#ref-4" class="citation">[4]</a></sup> in his 2022 thesis. 
+        Here he considers a similar example as we covered in the first section,
+
+        <div class="image-container">
+            <img src="../static/plots/pare_example.png">
+            <p class="image-caption">Figure 14: The example data set used by Peet-Par&eacute; <sup><a id="cite-ref-4" href="#ref-4" class="citation">[4]</a></sup> in his 2022 thesis.</p>
+        </div>
+
+        Here, as before the dataset is made up of two groups,
+        <div class="image-container">
+            <img src="../static/plots/pare_2_groups.png" style="max-width: 600px;">
+            <p class="image-caption">Figure 15: The dataset split into two distinct groups - Group A (left) and Group B (right), which represent different demographic populations.</p>
+        </div>        
+
+        So now, when we compare the best model under ERM and DRO, we see the following,
+        <div class="image-container">
+            <img src="../static/plots/pare_dro_erm.png" style="max-width: 600px;">
+            <p class="image-caption">Figure 16: Comparison of the best model under ERM and DRO.</p>
+        </div>
+
+        Whats important to notice is that the ERM model, performs better on average, however, it does so 
+        by sacrificing its performance on the minority group. DRO addresses this, by slightly
+        sacrificing its overall performance in order to retain a more <em>consistent</em> performance.
+
+        <h4>Key Takeaways</h4>
+        So in leaving this section, I want to highlight the following,
+        <ol>
+            <li>DRO minimizes the maximum loss over a group of distributions.</li>
+            <li>Using DRO can result in the training of more fair models.</li>
+        </ol>
+
+        <h3>3. Combining the Two: Performative DRO</h3>
+
+        To address the concern of fairness in the performative prediction setting, we 
+        use the DRO framework to train the models, instead of the ERM framework. This 
+        however introduces new problems and challenges. Specifically, the contraction conditionsa
+        are now slightly different, as well as from the problems formulation, smoothness is not necessarily
+        a reasonable assumption anymore. 
+        
+        To begin addressing this problem, we continue looking at the work of Peet-Par&eacute; <sup><a id="cite-ref-4" href="#ref-4" class="citation">[4]</a></sup>.
+        Here Peet-Par&eacute; derives new, but similar contraction conditions, mainly, 
+        <ol>
+            <li>The map is robustly $\omega \epsilon$-sensitive.</li>
+            <li>The loss function is robustly $\beta$-jointly smooth and robustly $\gamma$-strongly convex.</li>
+        </ol>
+
+        With these new conditions, he has that if we have $\omega \epsilon < \frac{\gamma}{\beta}$, then we have convergence.
+        This is what we desire, however, these assumptions are not as reasonable as they might seem. The reason behind this 
+        is because of differentiability. In the way the DRO problem is formulated, we are taking the max of a set of losses. We 
+        might then expect to find a 'sharp' point that could occur, breaking our 'robustly smooth' assumption. Hence, 
+        this brings up the main concern which is what softer conditions actually imply these robust contraction conditions. 
+        Can we actually expect to see them in practice? This brings us to our final section. 
+
+        <h3>4. Conclusion and Future Work</h3>
+        <p>We discussed performative prediction, studying models when they affect their data. Distributionally Robust Optimization, which is training models on the worse case so that they lead to more fair outcomes on the data they are trained on. Finally, we discussed Performative Distributionally Robust Optimization, which is when we use DRO in performative prediction settings to have models converge on more fair solutions. We mentioned certain contraction conditions that are required to have this fair and robust convergence occur, and the exploration for how reasonable they really are. My current work is to explore what more generalized and reasonable conditions I can have to ensure robust convergence, specifically the main questions I have are as follows,</p>
+        
+        <ol>
+            <li>We need robust $\beta$-joint smoothness from $\beta$-joint smoothness. What conditions when taking the max of a set of functions give us continuity? Differentiability? Smoothness? Joint smoothness?</li>
+            <li>What conditions are needed on the set and the mapping to retain $\gamma$-strong convexity into robust $\gamma$-strong convexity?</li>
+            <li>What needs to be added to turn $\epsilon$-sensitive into $\omega \epsilon$-sensitive?</li>
+        </ol>
+        
+        <p>I hope to explore these ideas by looking into convex analysis, functional analysis, non-smooth analysis, and by reading the current literature on DRO. Specifically how it has been used in other contexts and how theorems have been proven in those situations.</p>
+        
+        <p>Thank you for reading this long post. I hope you enjoyed. If you have any comments or wish to discuss mathematics please email me at smetwall@ualberta.ca!</p>
+        
+        <h3 id="references" class="references">References</h3>
+        
+        <div id="ref-1" class="reference-item">
+            <strong>[1]</strong> Alowais, S. A., et al. (2023). Revolutionizing healthcare: the role of artificial intelligence in clinical practice. BMC Medical Education, 23(1), 689. <a href="https://doi.org/10.1186/s12909-023-04698-z">https://doi.org/10.1186/s12909-023-04698-z</a>
+        </div>
+        
+        <div id="ref-2" class="reference-item">
+            <strong>[2]</strong> Vidovic, L., & Yue, L. (2020). Machine Learning and Credit Risk Modelling. S&P Global Market Intelligence. White Paper.
+        </div>
+        
+        <div id="ref-3" class="reference-item">
+            <strong>[3]</strong> Perdomo, J. C., Zrnic, T., Mendler-Dünner, C., & Hardt, M. (2021). Performative Prediction. In Proceedings of the 37th International Conference on Machine Learning.
+        </div>
+        
+        <div id="ref-4" class="reference-item">
+            <strong>[4]</strong> Peet-Paré, G. L. (2022). Beyond Static Classification: Long-term Fairness for Minority Groups via Performative Prediction and Distributionally Robust Optimization. Master of Science thesis, Department of Mathematical and Statistical Sciences, University of Alberta.
+        </div>
+    </article>
+</body>
+</html>
