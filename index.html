@@ -123,38 +123,35 @@
       </section>
       -->
       <section x-show="currentPath.startsWith('/blog/')" x-cloak>
-        <template x-if="getBlogByUrl(currentPath)">
-          <div x-data="{ blogContent: '', loadError: false }" x-init="
-            renderBlog(getBlogByUrl(currentPath).path)
-              .then(result => {
-                blogContent = result.content;
-                loadError = result.error || false;
-              })
-              .catch(err => {
-                console.error('Error loading blog:', err);
-                loadError = true;
-              })">
-            <div x-show="!loadError" x-html="blogContent"></div>
-            <div x-show="loadError">
-              <p>Unable to load blog content directly. Redirecting to standalone version...</p>
-              <p>If you are not redirected automatically, please <a :href="baseUrl + (getBlogByUrl(currentPath).rootPath || 'full-blog.html')" x-text="'click here'"></a>.</p>
-              <script>
-                // Redirect to standalone blog
-                setTimeout(function() {
-                  const blogUrl = getBlogByUrl(currentPath);
-                  if (blogUrl && blogUrl.url === '/blog/training-ml') {
-                    window.location.href = baseUrl + 'full-blog.html';
-                  }
-                }, 1500);
-              </script>
-            </div>
-          </div>
-        </template>
-        <template x-if="!getBlogByUrl(currentPath)">
-          <div>
-            <p>Blog post not found. <a :href="baseUrl + 'blogs.html'">View all available blog posts</a>.</p>
-          </div>
-        </template>
+        <div x-data="{ blogContent: '', debugInfo: '' }" x-init="
+          console.log('Blog section initialized for path:', currentPath);
+          debugInfo = 'Initializing blog for path: ' + currentPath;
+          
+          // First, let's test if the blog is found
+          const foundBlog = getBlogByUrl(currentPath);
+          console.log('Found blog:', foundBlog);
+          debugInfo += '<br>Found blog: ' + (foundBlog ? foundBlog.title : 'Not found');
+          
+          // Now try to render
+          const pathToUse = foundBlog ? foundBlog.path : 'blogs/training-ml.html';
+          debugInfo += '<br>Using path: ' + pathToUse;
+          
+          renderBlog(pathToUse).then(result => {
+            console.log('Blog render result:', result);
+            debugInfo += '<br>Render success: ' + (result.content ? 'YES' : 'NO');
+            if (result.content) {
+              blogContent = result.content;
+            } else {
+              blogContent = '<p>No content returned. Debug: ' + debugInfo + '</p>';
+            }
+          }).catch(err => {
+            console.error('Blog loading error:', err);
+            debugInfo += '<br>Error: ' + err.message;
+            blogContent = '<p>Loading error: ' + err.message + '<br>Debug: ' + debugInfo + '<br><a href=\"' + baseUrl + 'full-blog.html\" target=\"_blank\">View standalone version</a></p>';
+          })
+        ">
+          <div x-html="blogContent"></div>
+        </div>
       </section>
     </main>
   </div>
