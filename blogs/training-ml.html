@@ -4,6 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Training Fair Models That Affect Their Data</title>
+    
+    <!-- Path fixing for GitHub Pages -->
+    <script>
+        // Detect if we're on GitHub Pages
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        const basePath = isGitHubPages ? '/minima/' : '/';
+        
+        // Fix paths when document loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isGitHubPages) {
+                // Fix all image paths
+                document.querySelectorAll('img').forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && src.startsWith('../static/')) {
+                        img.src = src.replace('../static/', basePath + 'static/');
+                    }
+                });
+                
+                // Add a link back to the main site
+                const header = document.querySelector('h2');
+                if (header) {
+                    const homeLink = document.createElement('div');
+                    homeLink.innerHTML = '<p><a href="' + basePath + '">← Back to Home</a></p>';
+                    header.parentNode.insertBefore(homeLink, header);
+                }
+            }
+        });
+    </script>
+    
     <!-- MathJax for LaTeX rendering -->
     <script>
         window.MathJax = {

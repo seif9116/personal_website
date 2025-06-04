@@ -12,7 +12,8 @@ const blogs = [
     title: 'Training Models That Affect Their Data',
     date: '2025-04-24',
     url: '/blog/training-ml',
-    path: 'blogs/training-ml.html'
+    path: 'blogs/training-ml.html',
+    githubPath: '/minima/blogs/training-ml.html'  // Direct path for GitHub Pages
   },
 ]; 
 
@@ -106,30 +107,68 @@ function app() {
         async renderBlog(htmlPath) {
           try {
             console.log("Original HTML path:", htmlPath);
+            console.log("Base URL:", this.baseUrl);
             
             // Make sure we're using the correct path based on environment
             let fullPath = htmlPath;
             
-            // If it's a relative path from blogs directory, ensure baseUrl is prepended
-            if (fullPath.includes('blogs/') && !fullPath.startsWith('http') && !fullPath.startsWith(this.baseUrl)) {
+            // For GitHub Pages, use the direct GitHub path if available
+            const blog = this.blogs.find(b => b.path === htmlPath);
+            if (window.location.hostname.includes('github.io') && blog && blog.githubPath) {
+              fullPath = blog.githubPath;
+              console.log("Using direct GitHub path:", fullPath);
+            } else if (!fullPath.startsWith('http') && !fullPath.startsWith(this.baseUrl)) {
               fullPath = this.baseUrl + fullPath;
             }
             
             console.log("Fetching blog from:", fullPath);
-            const response = await fetch(fullPath);
+            console.log("Current host:", window.location.hostname);
+            console.log("Current path:", window.location.pathname);
+            
+            // Try fetch with different approaches if on GitHub Pages
+            let response;
+            if (window.location.hostname.includes('github.io')) {
+              try {
+                // Try the full path first
+                response = await fetch(fullPath);
+                if (!response.ok) {
+                  // Try with a relative path
+                  console.log("First fetch failed, trying relative path");
+                  const relativePath = fullPath.replace('/minima/', './');
+                  console.log("Trying relative path:", relativePath);
+                  response = await fetch(relativePath);
+                }
+                if (!response.ok) {
+                  // Try with an absolute path from root
+                  console.log("Second fetch failed, trying absolute path");
+                  const absolutePath = '/minima/blogs/training-ml.html';
+                  console.log("Trying absolute path:", absolutePath);
+                  response = await fetch(absolutePath);
+                }
+              } catch (e) {
+                console.error("Multiple fetch attempts failed:", e);
+                return { content: `<p>Error loading blog content after multiple attempts. Check console for details.</p>` };
+              }
+            } else {
+              // Standard fetch for local development
+              response = await fetch(fullPath);
+            }
             
             if (!response.ok) {
               console.error(`Failed to fetch blog content: ${response.status} ${response.statusText}`);
-              return { content: `<p>Error loading blog content. Status: ${response.status}</p>` };
+              console.error("Failed URL:", fullPath);
+              return { content: `<p>Error loading blog content. Status: ${response.status}. Check console for details.</p>` };
             }
             
             const content = await response.text();
+            console.log("Successfully loaded blog content of length:", content.length);
             
             // Process content to fix relative image paths
             let processedContent = content;
             
             // Fix image paths - handle both direct static/ references and ../static/ references
             if (this.baseUrl !== '/') {
+              console.log("Fixing image paths for GitHub Pages");
               // Replace src="static/ with the full baseUrl path
               processedContent = processedContent.replace(/src="static\//g, `src="${this.baseUrl}static/`);
               // Also handle src='static/ format
@@ -168,6 +207,7 @@ function app() {
             return { content: processedContent };
           } catch (error) {
             console.error('Error loading HTML content:', error);
+            console.error('Stack trace:', error.stack);
             return { content: '<p>Error loading blog content. Check console for details.</p>' };
           }
         }

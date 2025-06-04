@@ -117,7 +117,7 @@
       -->
       <section x-show="currentPath.startsWith('/blog/')" x-cloak>
         <template x-if="getBlogByUrl(currentPath)">
-          <div x-data="{ blogContent: '' }" x-init="renderBlog(baseUrl + getBlogByUrl(currentPath).path).then(
+          <div x-data="{ blogContent: '' }" x-init="renderBlog(getBlogByUrl(currentPath).path).then(
                 result => blogContent = result.content)">
             <div x-html="blogContent"></div>
           </div>

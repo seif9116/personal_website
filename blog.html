@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Post</title>
+  <script>
+    // Detect if we're on GitHub Pages
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    const baseUrl = isGitHubPages ? '/minima/' : '/';
+    
+    // Redirect to the blog post directly
+    window.location.href = isGitHubPages 
+      ? '/minima/blogs/training-ml.html' 
+      : '/blogs/training-ml.html';
+  </script>
+</head>
+<body>
+  <p>Redirecting to blog post...</p>
+  <p>If you are not redirected, please <a href="blogs/training-ml.html">click here</a>.</p>
+</body>
+</html> 
