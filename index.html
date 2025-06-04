@@ -94,6 +94,10 @@
                 <p x-text="blog.date"></p>
                 <p>
                   <a :href="baseUrl + (blog.rootPath || blog.path)" target="_blank">View directly</a>
+                  <a :href="baseUrl + 'full-blog.html'" target="_blank" x-show="window.location.hostname.includes('github.io')" style="margin-left: 10px;">View standalone version</a>
+                </p>
+                <p x-show="window.location.hostname.includes('github.io')" style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                  Note: On GitHub Pages, direct navigation may not work. Use the direct links above instead.
                 </p>
               </div>
             </div>
@@ -120,9 +124,35 @@
       -->
       <section x-show="currentPath.startsWith('/blog/')" x-cloak>
         <template x-if="getBlogByUrl(currentPath)">
-          <div x-data="{ blogContent: '' }" x-init="renderBlog(getBlogByUrl(currentPath).path).then(
-                result => blogContent = result.content)">
-            <div x-html="blogContent"></div>
+          <div x-data="{ blogContent: '', loadError: false }" x-init="
+            renderBlog(getBlogByUrl(currentPath).path)
+              .then(result => {
+                blogContent = result.content;
+                loadError = result.error || false;
+              })
+              .catch(err => {
+                console.error('Error loading blog:', err);
+                loadError = true;
+              })">
+            <div x-show="!loadError" x-html="blogContent"></div>
+            <div x-show="loadError">
+              <p>Unable to load blog content directly. Redirecting to standalone version...</p>
+              <p>If you are not redirected automatically, please <a :href="baseUrl + (getBlogByUrl(currentPath).rootPath || 'full-blog.html')" x-text="'click here'"></a>.</p>
+              <script>
+                // Redirect to standalone blog
+                setTimeout(function() {
+                  const blogUrl = getBlogByUrl(currentPath);
+                  if (blogUrl && blogUrl.url === '/blog/training-ml') {
+                    window.location.href = baseUrl + 'full-blog.html';
+                  }
+                }, 1500);
+              </script>
+            </div>
+          </div>
+        </template>
+        <template x-if="!getBlogByUrl(currentPath)">
+          <div>
+            <p>Blog post not found. <a :href="baseUrl + 'blogs.html'">View all available blog posts</a>.</p>
           </div>
         </template>
       </section>
@@ -134,6 +164,29 @@
       document.querySelectorAll('pre code').forEach((el) => {
         hljs.highlightElement(el);
       });
+      
+      // GitHub Pages blog navigation fix
+      if (window.location.hostname.includes('github.io')) {
+        // Check if we're trying to navigate to a blog post directly
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#/blog/')) {
+          console.log('Detected direct blog navigation on GitHub Pages');
+          
+          // Get the blog post URL
+          const blogUrl = hash.substring(1); // Remove the # character
+          
+          // For the training-ml blog, redirect to the standalone version
+          if (blogUrl === '/blog/training-ml') {
+            console.log('Redirecting to standalone blog version');
+            // Add a slight delay to allow Alpine.js to initialize
+            setTimeout(() => {
+              window.location.href = window.location.pathname.includes('/minima/') 
+                ? '/minima/full-blog.html' 
+                : '/full-blog.html';
+            }, 100);
+          }
+        }
+      }
     });
   </script>
 </body>

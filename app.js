@@ -72,9 +72,29 @@ function app() {
         blogs: blogs,
         //projects: projects, 
         navigate(path) {
-            window.location.hash = path;
-            this.currentPath = path;
-            console.log("Navigated to:", path);
+          console.log("Navigating to:", path);
+          
+          // Special handling for blog posts
+          if (path.startsWith('/blog/')) {
+            const blog = this.blogs.find(b => b.url === path);
+            
+            // For GitHub Pages, direct blog navigation may be problematic
+            if (window.location.hostname.includes('github.io') && blog) {
+              console.log("Direct blog navigation on GitHub Pages, checking alternatives");
+              
+              // Try using standalone version when on GitHub Pages
+              if (blog.url === '/blog/training-ml') {
+                console.log("Using standalone blog version");
+                window.location.href = this.baseUrl + 'full-blog.html';
+                return;
+              }
+            }
+          }
+          
+          // Standard navigation
+          window.location.hash = path;
+          this.currentPath = path;
+          console.log("Navigation complete to:", path);
         },
         init() {
             const updatePath = () => {
@@ -138,6 +158,8 @@ function app() {
             
             // Try fetch with different approaches if on GitHub Pages
             let response;
+            let fetchError = false;
+            
             try {
               // Try the constructed path first
               response = await fetch(fullPath);
@@ -150,10 +172,13 @@ function app() {
                 const pathsToTry = [
                   this.baseUrl + 'blogs/training-ml.html',
                   this.baseUrl + 'training-ml.html',
+                  this.baseUrl + 'full-blog.html',
                   '/minima/blogs/training-ml.html',
                   '/minima/training-ml.html',
+                  '/minima/full-blog.html',
                   './blogs/training-ml.html',
-                  './training-ml.html'
+                  './training-ml.html',
+                  './full-blog.html'
                 ];
                 
                 for (const path of pathsToTry) {
@@ -172,13 +197,32 @@ function app() {
               }
             } catch (e) {
               console.error("Fetch attempt failed:", e);
-              return { content: `<p>Error loading blog content. Check console for details.</p>` };
+              fetchError = true;
             }
             
-            if (!response.ok) {
-              console.error(`Failed to fetch blog content: ${response.status} ${response.statusText}`);
+            // If all fetch attempts failed or returned non-OK status
+            if (fetchError || !response || !response.ok) {
+              console.error(`Failed to fetch blog content: ${response ? response.status : 'No response'}`);
               console.error("Failed URL:", fullPath);
-              return { content: `<p>Error loading blog content. Status: ${response.status}. Check console for details.</p>` };
+              
+              // Check if we're on the index page and attempting to load a blog post
+              if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/') || window.location.pathname.endsWith('/minima/')) {
+                // Return an error status to allow the parent to handle the redirect
+                return { 
+                  content: '<p>Error loading blog content. Redirecting to standalone version...</p>', 
+                  error: true 
+                };
+              }
+              
+              return { 
+                content: `<p>Error loading blog content. Please try one of these alternatives:</p>
+                         <ul>
+                           <li><a href="${this.baseUrl}full-blog.html">Standalone blog post</a></li>
+                           <li><a href="${this.baseUrl}blogs.html">Blog index</a></li>
+                           <li><a href="${this.baseUrl}training-ml.html">Direct blog access</a></li>
+                         </ul>`, 
+                error: true 
+              };
             }
             
             const content = await response.text();
@@ -225,11 +269,14 @@ function app() {
               }
             }, 100); // Increased timeout to give more time for content to be rendered
                 
-            return { content: processedContent };
+            return { content: processedContent, error: false };
           } catch (error) {
             console.error('Error loading HTML content:', error);
             console.error('Stack trace:', error.stack);
-            return { content: '<p>Error loading blog content. Check console for details.</p>' };
+            return { 
+              content: `<p>Error loading blog content. Please try <a href="${this.baseUrl}full-blog.html">the standalone version</a>.</p>`, 
+              error: true 
+            };
           }
         }
     };
