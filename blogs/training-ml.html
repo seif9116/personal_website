@@ -100,42 +100,42 @@
         
         <p>As a dummy example to allow us to build intuition, lets look at binary classification. Let's assume we are analyzing the following data,</p>
         <div class="image-container">
-            <img src="static/plots/circle_classification_without_groups.png" alt="Binary classification data">
+            <img src="../static/plots/circle_classification_without_groups.png" alt="Binary classification data">
             <p class="image-caption">Figure 1: Binary classification data showing two classes (spam and non-spam) represented by red and blue circles.</p>
         </div>
         
         <p>Here we are looking to separate the blue circles from the red circles. In the real world this might represent spam detection, where the red circles are spam mail and the blue circles are not. As an initial guess we might first start with a model estimate as so,</p>
         
         <div class="image-container">
-            <img src="static/plots/binary_classification_with_initial_guess.png" alt="Binary classification data with initial guess">
+            <img src="../static/plots/binary_classification_with_initial_guess.png" alt="Binary classification data with initial guess">
             <p class="image-caption">Figure 2: Initial classification boundary attempting to separate the two classes.</p>
         </div>
         
         <p>Clearly this is not the best guess. To see how we can change our model, we can first evaluate the (log) loss on this current guess, then try performing a small rotation on it clockwise and counterclockwise to see if the model's loss goes up or down (gradient descent) and follow the direction that decreases the loss. Let's see it in this example.</p>
         
         <div class="image-container">
-            <img src="static/plots/binary_class_loss_pert_gain.png" alt="Binary classification data with initial guess">
+            <img src="../static/plots/binary_class_loss_pert_gain.png" alt="Binary classification data with initial guess">
             <p class="image-caption">Figure 3: Loss evaluation showing how rotating the decision boundary counterclockwise decreases the loss function.</p>
         </div>
         
         <p>Here we notice the loss decreases if we rotate our guess counterclockwise, and so we follow this and repeat the process until we have our best model as shown below.</p>
         
         <div class="image-container">
-            <img src="static/plots/binary_classification_with_best_guess_and_loss.png" alt="Binary classification data with initial guess">
+            <img src="../static/plots/binary_classification_with_best_guess_and_loss.png" alt="Binary classification data with initial guess">
             <p class="image-caption">Figure 4: Optimized classification boundary after gradient descent, showing the minimized loss function.</p>
         </div>
         
         <p>Great! Up until this point we have done <em>classical machine learning</em>. Nothing so far has anything to do with models affecting their data or performative prediction. So let's consider that possibility. First notice that the data is actually made up of two distinct groups:</p>
         <div class="image-row">
-            <img src="static/plots/binary_classification_with_group_A_only.png" alt="Binary classification data with group A only">
-            <img src="static/plots/binary_classification_with_group_B_only.png" alt="Binary classification data with group B only">
+            <img src="../static/plots/binary_classification_with_group_A_only.png" alt="Binary classification data with group A only">
+            <img src="../static/plots/binary_classification_with_group_B_only.png" alt="Binary classification data with group B only">
         </div>
         <p class="image-caption">Figure 5: The dataset split into two distinct groups - Group A (left) and Group B (right), which could represent different demographic populations.</p>
         
         <p>These two groups could represent a variety of things, perhaps visible minorities and non-minorities, perhaps male and female, etc. Here in the spam example we might consider group A to be groups that are not able to change the content of their mail, while group B is. Maybe group B is better capable at confiscating their intention. Regardless, in response to the models deployment, and its successful ability at classifying spam versus not spam, we may suspect the spam mailers to change the content of their mail in response to the model to avoid detection. For example, notice that the spam points of group B are normally distributed around $\theta=\pi/4$, which happens to correspond pretty closely to our models line.</p>
         
         <div class="image-container">
-            <img src="static/plots/binary_class_normal_dist_group_B.png" alt="Binary classification data with initial guess">
+            <img src="../static/plots/binary_class_normal_dist_group_B.png" alt="Binary classification data with initial guess">
             <p class="image-caption">Figure 6: Normal distribution of Group B data points around $\theta=\pi/4$, closely aligned with our model's decision boundary.</p>
         </div>
         
@@ -144,19 +144,19 @@
              i.e.,</p>
         
         <div class="image-container">
-            <img src="static/plots/binary_class_shift.png" alt="Binary classification data with initial guess">
+            <img src="../static/plots/binary_class_shift.png" alt="Binary classification data with initial guess">
             <p class="image-caption">Figure 7: The distribution shift in Group B as spam mailers adapt to the model, now normally distributed around $\theta=3\pi/16$.</p>
         </div>
         
         <p>Now if we were to re-evaluate our current best model, we might see that our loss has increased. That is, the real world data responded to our model, leading to our model performing worse. This is showcased below.</p>
          <div class="image-container">
-            <img src="static/plots/binary_class_new_loss.png" alt="Binary classification data with initial guess">
+            <img src="../static/plots/binary_class_new_loss.png" alt="Binary classification data with initial guess">
             <p class="image-caption">Figure 8: Increased loss function after the distribution shift, demonstrating how model performance deteriorates when data adapts to the model.</p>
         </div>       
         <p>It's easy to see how this game could go on forever. For example, if in response to this new model the data moved sporadically, the model would need to be retrained, leading to another shift in the data, requiring further model adjustments, and so on in a continuous cycle.</p>
 
         <div class="image-container">
-            <img src="static/plots/performative_prediction/performative_prediction.gif" alt="Performative prediction cycle showing model-data adaptation">
+            <img src="../static/plots/performative_prediction/performative_prediction.gif" alt="Performative prediction cycle showing model-data adaptation">
             <p class="image-caption">Figure 9: Animation of the performative prediction cycle showing how the model fits to data, Group B shifts in response, the model adjusts, and the cycle continues.</p>
         </div>
         
@@ -165,7 +165,7 @@
         <p>The first idea I want you to wrap your head around is <em>a space of distributions</em>. Think of this 
         as all the different 'universes' we could be in, i.e., the different ways our data might have ended up looking like.</p>
         <div class="image-container">
-            <img src="static/plots/space_of_distributions.png">
+            <img src="../static/plots/space_of_distributions.png">
             <p class="image-caption">Figure 10: Visualization of the space of distributions, representing different possible data distributions or "universes" our model might encounter.</p>
         </div>
 
@@ -174,7 +174,7 @@
         Since the 'best' model is determined by the distribution, we can think of there being a map between distributions. 
 
         <div class="image-container">
-            <img src="static/plots/contraction_map.png" style="max-width: 600px;">
+            <img src="../static/plots/contraction_map.png" style="max-width: 600px;">
             <p class="image-caption">Figure 11: Illustration of the performative prediction map showing how one distribution transforms into another after model deployment.</p>
         </div>
 
@@ -191,7 +191,7 @@
         The first condition is fairly intuitive. We need the distribution to be $\epsilon$-sensitive. This means
         that we want the space of distributions to be shrinking. The following figure showcases why we would want this to be the case.
         <div class="image-container">
-            <img src="static/plots/contracting.png">
+            <img src="../static/plots/contracting.png">
             <p class="image-caption">Figure 12: Visualization of a contraction map where the distance between distributions decreases with each iteration, allowing convergence to a stable distribution.</p>
         </div>
 
@@ -225,7 +225,7 @@
         and see what was the worse case scenario. This is what we look to minimize. This is called <em>Distributionally Robust Optimization</em> (DRO).
 
         <div class="image-container">
-            <img src="static/plots/erm_vs_rrm.png" style="max-width: 600px;">
+            <img src="../static/plots/erm_vs_rrm.png" style="max-width: 600px;">
             <p class="image-caption">Figure 13: Comparison of the ERM against the DRO process showing how we evaluate the loss in each universe and then take the worst case scenario.</p>
         </div>
 
@@ -233,19 +233,19 @@
         Here he considers a similar example as we covered in the first section,
 
         <div class="image-container">
-            <img src="static/plots/pare_example.png">
+            <img src="../static/plots/pare_example.png">
             <p class="image-caption">Figure 14: The example data set used by Peet-Paré <sup><a id="cite-ref-4" href="#ref-4" class="citation">[4]</a></sup> in his 2022 thesis.</p>
         </div>
 
         Here, as before the dataset is made up of two groups,
         <div class="image-container">
-            <img src="static/plots/pare_2_groups.png" style="max-width: 600px;">
+            <img src="../static/plots/pare_2_groups.png" style="max-width: 600px;">
             <p class="image-caption">Figure 15: The dataset split into two distinct groups - Group A (left) and Group B (right), which represent different demographic populations.</p>
         </div>        
 
         So now, when we compare the best model under ERM and DRO, we see the following,
         <div class="image-container">
-            <img src="static/plots/pare_dro_erm.png" style="max-width: 600px;">
+            <img src="../static/plots/pare_dro_erm.png" style="max-width: 600px;">
             <p class="image-caption">Figure 16: Comparison of the best model under ERM and DRO.</p>
         </div>
 
