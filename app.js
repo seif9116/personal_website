@@ -75,15 +75,6 @@ function app() {
         navigate(path) {
           console.log("Navigating to:", path);
           
-          // Special handling for blog posts - just redirect to standalone versions
-          if (path.startsWith('/blog/')) {
-            console.log("Blog navigation detected, redirecting to standalone version");
-            if (path === '/blog/training-ml') {
-              window.location.href = this.baseUrl + 'full-blog.html';
-              return;
-            }
-          }
-          
           // Standard navigation
           window.location.hash = path;
           this.currentPath = path;
