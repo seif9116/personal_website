@@ -92,6 +92,9 @@
               <div class="item-content">
                 <h3 x-text="blog.title"></h3>
                 <p x-text="blog.date"></p>
+                <p>
+                  <a :href="baseUrl + (blog.rootPath || blog.path)" target="_blank">View directly</a>
+                </p>
               </div>
             </div>
           </template>

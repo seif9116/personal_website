@@ -1,6 +1,6 @@
 const getBaseUrl = () => {
   if (window.location.hostname.includes('github.io')) {
-    // Ensure there's a trailing slash for GitHub Pages
+    // Use your GitHub username instead of JustinMeimar
     return '/minima/';
   } else {
     return '/';
@@ -13,7 +13,8 @@ const blogs = [
     date: '2025-04-24',
     url: '/blog/training-ml',
     path: 'blogs/training-ml.html',
-    githubPath: '/minima/blogs/training-ml.html'  // Direct path for GitHub Pages
+    githubPath: '/minima/blogs/training-ml.html',
+    rootPath: 'training-ml.html' // Alternative path directly in root
   },
 ]; 
 
@@ -112,11 +113,21 @@ function app() {
             // Make sure we're using the correct path based on environment
             let fullPath = htmlPath;
             
-            // For GitHub Pages, use the direct GitHub path if available
+            // For GitHub Pages, try multiple path options
             const blog = this.blogs.find(b => b.path === htmlPath);
-            if (window.location.hostname.includes('github.io') && blog && blog.githubPath) {
-              fullPath = blog.githubPath;
-              console.log("Using direct GitHub path:", fullPath);
+            if (window.location.hostname.includes('github.io')) {
+              if (blog) {
+                // First try the root path option
+                if (blog.rootPath) {
+                  fullPath = this.baseUrl + blog.rootPath;
+                  console.log("Trying root path:", fullPath);
+                } else if (blog.githubPath) {
+                  fullPath = blog.githubPath;
+                  console.log("Using direct GitHub path:", fullPath);
+                }
+              } else if (!fullPath.startsWith('http') && !fullPath.startsWith(this.baseUrl)) {
+                fullPath = this.baseUrl + fullPath;
+              }
             } else if (!fullPath.startsWith('http') && !fullPath.startsWith(this.baseUrl)) {
               fullPath = this.baseUrl + fullPath;
             }
@@ -127,31 +138,41 @@ function app() {
             
             // Try fetch with different approaches if on GitHub Pages
             let response;
-            if (window.location.hostname.includes('github.io')) {
-              try {
-                // Try the full path first
-                response = await fetch(fullPath);
-                if (!response.ok) {
-                  // Try with a relative path
-                  console.log("First fetch failed, trying relative path");
-                  const relativePath = fullPath.replace('/minima/', './');
-                  console.log("Trying relative path:", relativePath);
-                  response = await fetch(relativePath);
-                }
-                if (!response.ok) {
-                  // Try with an absolute path from root
-                  console.log("Second fetch failed, trying absolute path");
-                  const absolutePath = '/minima/blogs/training-ml.html';
-                  console.log("Trying absolute path:", absolutePath);
-                  response = await fetch(absolutePath);
-                }
-              } catch (e) {
-                console.error("Multiple fetch attempts failed:", e);
-                return { content: `<p>Error loading blog content after multiple attempts. Check console for details.</p>` };
-              }
-            } else {
-              // Standard fetch for local development
+            try {
+              // Try the constructed path first
               response = await fetch(fullPath);
+              
+              // If that fails and we're on GitHub Pages, try alternate paths
+              if (!response.ok && window.location.hostname.includes('github.io')) {
+                console.log("First fetch failed, trying alternate paths");
+                
+                // Try a series of paths that might work
+                const pathsToTry = [
+                  this.baseUrl + 'blogs/training-ml.html',
+                  this.baseUrl + 'training-ml.html',
+                  '/minima/blogs/training-ml.html',
+                  '/minima/training-ml.html',
+                  './blogs/training-ml.html',
+                  './training-ml.html'
+                ];
+                
+                for (const path of pathsToTry) {
+                  console.log("Trying path:", path);
+                  try {
+                    const altResponse = await fetch(path);
+                    if (altResponse.ok) {
+                      console.log("Found working path:", path);
+                      response = altResponse;
+                      break;
+                    }
+                  } catch (err) {
+                    console.error("Error fetching alternate path:", path, err);
+                  }
+                }
+              }
+            } catch (e) {
+              console.error("Fetch attempt failed:", e);
+              return { content: `<p>Error loading blog content. Check console for details.</p>` };
             }
             
             if (!response.ok) {

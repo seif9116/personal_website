@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Fair Models That Affect Their Data</title>
+    
+    <!-- Path fixing for GitHub Pages -->
+    <script>
+        // Detect if we're on GitHub Pages
+        const isGitHubPages = window.location.hostname.includes('github.io');
+        const basePath = isGitHubPages ? '/minima/' : '/';
+        
+        // Fix paths when document loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isGitHubPages) {
+                // Fix all image paths
+                document.querySelectorAll('img').forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && src.startsWith('../static/')) {
+                        img.src = src.replace('../static/', basePath + 'static/');
+                    } else if (src && src.startsWith('static/')) {
+                        img.src = basePath + src;
+                    }
+                });
+                
+                // Add a link back to the main site
+                const header = document.querySelector('h2');
+                if (header) {
+                    const homeLink = document.createElement('div');
+                    homeLink.innerHTML = '<p><a href="' + basePath + '">← Back to Home</a></p>';
+                    header.parentNode.insertBefore(homeLink, header);
+                }
+            }
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-container img {
+            max-width: 400px;
+            height: auto;
+        }
+        .image-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .image-row img {
+            max-width: 300px;
+            height: auto;
+        }
+        .image-caption {
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        /* Reference styling */
+        sup {
+            vertical-align: super;
+            font-size: smaller;
+        }
+        .citation {
+            color: #0066cc;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .citation:hover {
+            text-decoration: underline;
+        }
+        .references {
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+            padding-top: 20px;
+        }
+        .reference-item {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            text-indent: -30px;
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h2>Training Fair Models That Affect Their Data</h2>
+        
+        <p>The way models classically work is you have training data, you train your model on said data, then you deploy the model into the real world. The assumption is whatever data you use to train your data will be an accurate representation of what the model will see in the real world (i.e., identically distributed). What happens if this isn't the case? Worse, what happens if the action of deploying the model is explicitly what causes the real world to be different from its training data? How do we get around this? How can we train our models to be more efficient in these situations?</p>
+        
+        <p>This problem becomes even more critical when we consider fairness. Many models are trained to perform well on average cases, which can lead them to ignore or underperform on minority groups within the data. These biases don't just affect model performance; they can be actively reinforced when the model's decisions influence future data. For example, a loan approval model that performs worse for minority groups might reject more applications from these groups unjustly, leading to worse financial outcomes and reinforcing the very disparities present in the training data.</p>
+        
+        <p>My current research looks to solve this problem. Here's the journey I'm going to take you on,</p>
+        
+        <ol>
+            <li>Performative Prediction
+                <ul>
+                    <li>When models change their data</li>
+                </ul>
+            </li>
+            <li>Distributionally Robust Optimization
+                <ul>
+                    <li>Making models robust to changes</li>
+                </ul>
+            </li>
+            <li>Combining the two
+                <ul>
+                    <li>Training fair models that affect their data</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>1. Performative Prediction</h3>
+        <p>Okay first, what is performative prediction. As we are all aware, machine learning (ML) models are being used more widely than ever for decisions in almost all areas of life. Whether it's in analyzing medical images<sup><a id="cite-ref-1" href="#ref-1" class="citation">[1]</a></sup>, fraud-detection<sup><a id="cite-ref-2" href="#ref-2" class="citation">[2]</a></sup>, or credit risk<sup><a id="cite-ref-2-2" href="#ref-2" class="citation">[2]</a></sup>, machine learning is taking more and more precedence in our lives. As these models start making decisions on increasingly more important data, and larger institutions start using them, we face the very real problem of the models making decisions that influence the outcome they are trying to predict. This is called <em>performative prediction</em>.</p>
+        
+        <p>As a dummy example to allow us to build intuition, lets look at binary classification. Let's assume we are analyzing the following data,</p>
+        <div class="image-container">
+            <img src="static/plots/circle_classification_without_groups.png" alt="Binary classification data">
+            <p class="image-caption">Figure 1: Binary classification data showing two classes (spam and non-spam) represented by red and blue circles.</p>
+        </div>
+        
+        <p>Here we are looking to separate the blue circles from the red circles. In the real world this might represent spam detection, where the red circles are spam mail and the blue circles are not. As an initial guess we might first start with a model estimate as so,</p>
+        
+        <div class="image-container">
+            <img src="static/plots/binary_classification_with_initial_guess.png" alt="Binary classification data with initial guess">
+            <p class="image-caption">Figure 2: Initial classification boundary attempting to separate the two classes.</p>
+        </div>
+        
+        <!-- Rest of content with "static/" image paths instead of "../static/" -->
+        <!-- ... -->
+    </article>
+</body>
+</html> 

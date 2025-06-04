@@ -12,6 +12,10 @@ mkdir -p _site/blogs
 echo "Copying HTML files..."
 cp index.html _site/
 cp test.html _site/
+cp blog.html _site/
+cp blogs.html _site/
+cp training-ml.html _site/
+cp full-blog.html _site/
 cp blogs/training-ml.html _site/blogs/
 
 # Copy JS files
@@ -46,10 +50,22 @@ cat > _site/debug.html << EOF
   
   Static directory:
   $(ls -la static/)
+  
+  Root directory:
+  $(ls -la | grep -v node_modules)
   </pre>
   
   <h2>Test Blog Loading</h2>
-  <button onclick="loadBlog()">Load Blog</button>
+  <p>Try each of these options:</p>
+  <ul>
+    <li><a href="blogs/training-ml.html">blogs/training-ml.html</a></li>
+    <li><a href="training-ml.html">training-ml.html</a></li>
+    <li><a href="full-blog.html">full-blog.html</a></li>
+    <li><a href="blog.html">blog.html (redirect)</a></li>
+    <li><a href="blogs.html">blogs.html (listing)</a></li>
+  </ul>
+  
+  <button onclick="loadBlog()">Run Automatic Tests</button>
   <div id="blogResult"></div>
   
   <script>
@@ -61,7 +77,10 @@ cat > _site/debug.html << EOF
       // Try different paths
       const paths = [
         '/minima/blogs/training-ml.html',
+        '/minima/training-ml.html',
+        '/minima/full-blog.html',
         './blogs/training-ml.html',
+        './training-ml.html',
         '../blogs/training-ml.html'
       ];
       
@@ -90,6 +109,26 @@ cat > _site/debug.html << EOF
   </script>
 </body>
 </html>
+EOF
+
+# Create a README with troubleshooting info
+echo "Creating README..."
+cat > _site/README.md << EOF
+# Blog Troubleshooting
+
+If you're having trouble with 404 errors on the blog, try these direct links:
+
+- [Main Blog Post](https://seif9116.github.io/minima/full-blog.html) - Standalone version
+- [Blog Post in Root](https://seif9116.github.io/minima/training-ml.html) - Root version
+- [Blog Post in Blogs Directory](https://seif9116.github.io/minima/blogs/training-ml.html) - In blogs/ directory
+- [Blog Listing](https://seif9116.github.io/minima/blogs.html) - List of all blogs
+- [Diagnostic Page](https://seif9116.github.io/minima/debug.html) - Troubleshooting info
+
+## Common Issues
+
+1. **404 Errors on Images** - Images use relative paths that may not work correctly in all environments
+2. **Blog Post Not Loading** - Try accessing the blog directly through one of the links above
+3. **Navigation Issues** - Use the direct links above instead of the site navigation
 EOF
 
 echo "Debug deployment files created!" 
