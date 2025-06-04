@@ -9,7 +9,7 @@
     <script>
         // Detect if we're on GitHub Pages
         const isGitHubPages = window.location.hostname.includes('github.io');
-        const basePath = isGitHubPages ? '/minima/' : '/';
+        const basePath = isGitHubPages ? '/personal_website/' : '/';
         
         // Fix paths when document loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -19,6 +19,8 @@
                     const src = img.getAttribute('src');
                     if (src && src.startsWith('../static/')) {
                         img.src = src.replace('../static/', basePath + 'static/');
+                    } else if (src && src.startsWith('static/')) {
+                        img.src = basePath + src;
                     }
                 });
                 

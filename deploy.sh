@@ -76,9 +76,9 @@ cat > _site/debug.html << EOF
     try {
       // Try different paths
       const paths = [
-        '/minima/blogs/training-ml.html',
-        '/minima/training-ml.html',
-        '/minima/full-blog.html',
+        '/personal_website/blogs/training-ml.html',
+        '/personal_website/training-ml.html',
+        '/personal_website/full-blog.html',
         './blogs/training-ml.html',
         './training-ml.html',
         '../blogs/training-ml.html'
@@ -118,11 +118,11 @@ cat > _site/README.md << EOF
 
 If you're having trouble with 404 errors on the blog, try these direct links:
 
-- [Main Blog Post](https://seif9116.github.io/minima/full-blog.html) - Standalone version
-- [Blog Post in Root](https://seif9116.github.io/minima/training-ml.html) - Root version
-- [Blog Post in Blogs Directory](https://seif9116.github.io/minima/blogs/training-ml.html) - In blogs/ directory
-- [Blog Listing](https://seif9116.github.io/minima/blogs.html) - List of all blogs
-- [Diagnostic Page](https://seif9116.github.io/minima/debug.html) - Troubleshooting info
+- [Main Blog Post](https://seif9116.github.io/personal_website/full-blog.html) - Standalone version
+- [Blog Post in Root](https://seif9116.github.io/personal_website/training-ml.html) - Root version
+- [Blog Post in Blogs Directory](https://seif9116.github.io/personal_website/blogs/training-ml.html) - In blogs/ directory
+- [Blog Listing](https://seif9116.github.io/personal_website/blogs.html) - List of all blogs
+- [Diagnostic Page](https://seif9116.github.io/personal_website/debug.html) - Troubleshooting info
 
 ## Common Issues
 

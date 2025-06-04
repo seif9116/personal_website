@@ -1,7 +1,7 @@
 const getBaseUrl = () => {
   if (window.location.hostname.includes('github.io')) {
-    console.log("GitHub Pages detected, using /minima/ base URL");
-    return '/minima/';
+    console.log("GitHub Pages detected, using /personal_website/ base URL");
+    return '/personal_website/';
   } else {
     console.log("Local development detected, using / base URL");
     return '/';
@@ -14,7 +14,7 @@ const blogs = [
     date: '2025-04-24',
     url: '/blog/training-ml',
     path: 'blogs/training-ml.html',
-    githubPath: '/minima/blogs/training-ml.html',
+    githubPath: '/personal_website/blogs/training-ml.html',
     rootPath: 'training-ml.html' // Alternative path directly in root
   },
 ]; 

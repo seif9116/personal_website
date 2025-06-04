@@ -76,14 +76,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Detect if we're on GitHub Pages
             const isGitHubPages = window.location.hostname.includes('github.io');
-            const baseUrl = isGitHubPages ? '/minima/' : '/';
+            const baseUrl = isGitHubPages ? '/personal_website/' : '/';
             
             // Update links if needed
             if (isGitHubPages) {
                 document.querySelectorAll('a[href]').forEach(link => {
                     const href = link.getAttribute('href');
-                    if (href.startsWith('/') && !href.startsWith('/minima')) {
-                        link.href = '/minima' + href;
+                    if (href.startsWith('/') && !href.startsWith('/personal_website')) {
+                        link.href = '/personal_website' + href;
                     }
                 });
             }
