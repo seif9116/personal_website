@@ -145,29 +145,6 @@
       document.querySelectorAll('pre code').forEach((el) => {
         hljs.highlightElement(el);
       });
-      
-      // GitHub Pages blog navigation fix
-      if (window.location.hostname.includes('github.io')) {
-        // Check if we're trying to navigate to a blog post directly
-        const hash = window.location.hash;
-        if (hash && hash.startsWith('#/blog/')) {
-          console.log('Detected direct blog navigation on GitHub Pages');
-          
-          // Get the blog post URL
-          const blogUrl = hash.substring(1); // Remove the # character
-          
-          // For the training-ml blog, redirect to the standalone version
-          if (blogUrl === '/blog/training-ml') {
-            console.log('Redirecting to standalone blog version');
-            // Add a slight delay to allow Alpine.js to initialize
-            setTimeout(() => {
-              window.location.href = window.location.pathname.includes('/personal_website/') 
-                ? '/personal_website/full-blog.html' 
-                : '/full-blog.html';
-            }, 100);
-          }
-        }
-      }
     });
   </script>
 </body>

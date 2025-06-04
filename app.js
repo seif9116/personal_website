@@ -120,37 +120,7 @@ function app() {
             console.log("Original HTML path:", htmlPath);
             console.log("Base URL:", this.baseUrl);
             
-            // For GitHub Pages, skip the complex path resolution and use the working standalone version
-            if (window.location.hostname.includes('github.io')) {
-              console.log("GitHub Pages detected - using standalone blog approach");
-              
-              // Just fetch the content from the working standalone blog
-              const standaloneUrl = this.baseUrl + 'full-blog.html';
-              console.log("Fetching from standalone URL:", standaloneUrl);
-              
-              const response = await fetch(standaloneUrl);
-              if (response.ok) {
-                const content = await response.text();
-                console.log("Successfully loaded standalone blog content");
-                
-                // Extract just the article content from the standalone blog
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(content, 'text/html');
-                const article = doc.querySelector('article');
-                
-                if (article) {
-                  // Return just the article content
-                  return { content: article.innerHTML, error: false };
-                } else {
-                  // Fallback to full content
-                  return { content: content, error: false };
-                }
-              } else {
-                throw new Error(`Failed to fetch standalone blog: ${response.status}`);
-              }
-            }
-            
-            // For local development, try the original approach
+            // Build the correct path
             let fullPath = htmlPath;
             if (!fullPath.startsWith('http') && !fullPath.startsWith(this.baseUrl)) {
               fullPath = this.baseUrl + fullPath;
@@ -164,12 +134,12 @@ function app() {
             }
             
             const content = await response.text();
-            console.log("Successfully loaded blog content locally");
+            console.log("Successfully loaded blog content");
             
             // Process content to fix relative image paths
             let processedContent = content;
             
-            // Fix image paths
+            // Fix image paths for GitHub Pages
             if (this.baseUrl !== '/') {
               processedContent = processedContent.replace(/src="static\//g, `src="${this.baseUrl}static/`);
               processedContent = processedContent.replace(/src='static\//g, `src='${this.baseUrl}static/'`);
@@ -197,7 +167,7 @@ function app() {
           } catch (error) {
             console.error('Error loading HTML content:', error);
             return { 
-              content: `<p>Error loading blog content. Please try <a href="${this.baseUrl}full-blog.html" target="_blank">the standalone version</a>.</p>`, 
+              content: `<p>Error loading blog content: ${error.message}</p>`, 
               error: true 
             };
           }
