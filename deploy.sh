@@ -11,11 +11,6 @@ mkdir -p _site/blogs
 # Copy HTML files
 echo "Copying HTML files..."
 cp index.html _site/
-cp test.html _site/
-cp blog.html _site/
-cp blogs.html _site/
-cp training-ml.html _site/
-cp full-blog.html _site/
 cp blogs/training-ml.html _site/blogs/
 
 # Copy JS files
@@ -59,10 +54,7 @@ cat > _site/debug.html << EOF
   <p>Try each of these options:</p>
   <ul>
     <li><a href="blogs/training-ml.html">blogs/training-ml.html</a></li>
-    <li><a href="training-ml.html">training-ml.html</a></li>
-    <li><a href="full-blog.html">full-blog.html</a></li>
-    <li><a href="blog.html">blog.html (redirect)</a></li>
-    <li><a href="blogs.html">blogs.html (listing)</a></li>
+    <li><a href="index.html">Main Site</a></li>
   </ul>
   
   <button onclick="loadBlog()">Run Automatic Tests</button>
@@ -77,11 +69,7 @@ cat > _site/debug.html << EOF
       // Try different paths
       const paths = [
         '/personal_website/blogs/training-ml.html',
-        '/personal_website/training-ml.html',
-        '/personal_website/full-blog.html',
-        './blogs/training-ml.html',
-        './training-ml.html',
-        '../blogs/training-ml.html'
+        './blogs/training-ml.html'
       ];
       
       for (const path of paths) {
@@ -118,10 +106,8 @@ cat > _site/README.md << EOF
 
 If you're having trouble with 404 errors on the blog, try these direct links:
 
-- [Main Blog Post](https://seif9116.github.io/personal_website/full-blog.html) - Standalone version
-- [Blog Post in Root](https://seif9116.github.io/personal_website/training-ml.html) - Root version
-- [Blog Post in Blogs Directory](https://seif9116.github.io/personal_website/blogs/training-ml.html) - In blogs/ directory
-- [Blog Listing](https://seif9116.github.io/personal_website/blogs.html) - List of all blogs
+- [Main Site](https://seif9116.github.io/personal_website/) - Homepage
+- [Blog Post](https://seif9116.github.io/personal_website/blogs/training-ml.html) - Training Fair Models That Affect Their Data
 - [Diagnostic Page](https://seif9116.github.io/personal_website/debug.html) - Troubleshooting info
 
 ## Common Issues

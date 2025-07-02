@@ -1,0 +1,118 @@
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    /* Navbar responsiveness */
+    header {
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+        gap: 15px;
+    }
+    
+    /* Make name smaller on mobile */
+    h1 {
+        font-size: 1.8em;
+        text-align: center;
+    }
+    
+    /* Navigation menu adjustments */
+    nav {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    nav a {
+        font-size: 0.9em;
+    }
+    
+    /* Content wrapper padding adjustment */
+    #content-wrapper {
+        padding: 0 15px;
+    }
+    
+    /* Blog images responsiveness */
+    .image-container img {
+        max-width: 100% !important;
+        height: auto;
+    }
+    
+    .image-row {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .image-row img {
+        max-width: 100% !important;
+        margin-bottom: 10px;
+    }
+    
+    /* All images in blog posts */
+    article img {
+        max-width: 100% !important;
+        height: auto;
+    }
+    
+    /* Profile section adjustments */
+    .profile-image {
+        width: 150px;
+        height: 150px;
+        margin-top: 30px;
+    }
+    
+    /* Bio text */
+    .bio {
+        padding: 0 10px;
+        font-size: 0.95em;
+    }
+    
+    /* Item list adjustments */
+    .item-photo {
+        width: 80px;
+        height: 80px;
+    }
+    
+    /* Code blocks */
+    pre {
+        margin-left: -15px;
+        margin-right: -15px;
+        border-radius: 0;
+        padding: 10px;
+    }
+    
+    /* Reference items */
+    .reference-item {
+        padding-left: 20px;
+        text-indent: -20px;
+        font-size: 0.9em;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+    
+    nav {
+        gap: 10px;
+    }
+    
+    nav a {
+        font-size: 0.85em;
+        padding: 5px;
+    }
+    
+    .profile-image {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .social-icons {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .social-icons a {
+        font-size: 0.9em;
+    }
+}
